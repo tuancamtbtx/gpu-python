@@ -7,4 +7,4 @@
 | ------------- | ------------- | ------------- | ------------- |
 | 1  | Nguyễn Văn Tuấn | 1512638 | nguyenvantuan140397@gmail.com|
 | 2  | Lê Thanh Hiếu | 1712434 | hieulethanh.dev@gmail.com| 
-| 3  | Phan Hữu Tú  | 1712861| t@gmail.com |
+| 3  | Phan Hữu Tú  | 1712861| tuhp.tech@gmail.com |
