@@ -97,6 +97,27 @@ def remove_seam(img, boolmask):
     return img[boolmask_3c].reshape((r, c - 1, 3))
 
 
+@jit
+def add_seam(img, seam_idx):
+    r, c, _ = img.shape
+    out_img = np.zeros((r, c + 1, 3))
+    for row in range(r):
+        col = seam_idx[row]
+        for channel in range(3):
+            if col == 0:
+                p = np.average(img[row, col: col + 2, channel])
+                out_img[row, col, channel] = img[row, col, channel]
+                out_img[row, col + 1, channel] = p
+                out_img[row, col + 1:, channel] = img[row, col:, channel]
+            else:
+                p = np.average(img[row, col - 1: col + 1, channel])
+                out_img[row, : col, channel] = img[row, : col, channel]
+                out_img[row, col, channel] = p
+                out_img[row, col + 1:, channel] = img[row, col:, channel]
+
+    return out_img
+
+
 
 def start_seams_removal(img, num_remove):
 
@@ -109,8 +130,10 @@ def start_seams_removal(img, num_remove):
 
 
 
-def main():
-    
+
+
+def main(img, dx, dy):
+
 
     pass
 
