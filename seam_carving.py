@@ -119,6 +119,8 @@ def add_seam(img, seam_idx):
 
 
 
+
+
 def start_seams_removal(img, num_remove):
 
     new_img = img.copy()
@@ -127,6 +129,29 @@ def start_seams_removal(img, num_remove):
         new_img = remove_seam(new_img, boolmask)
 
     return new_img
+
+
+def start_seams_insertion(img, num_add):
+    seams_record = []
+    temp_img = img.copy()
+
+    for _ in range(num_add):
+        seam_idx, boolmask = get_minimum_seam(temp_img)
+
+        seams_record.append(seam_idx)
+        temp_img = remove_seam(temp_img, boolmask)
+
+    seams_record.reverse()
+
+    for _ in range(num_add):
+        seam = seams_record.pop()
+        img = add_seam(img, seam)
+
+        # update the remaining seam indices
+        for remaining_seam in seams_record:
+            remaining_seam[np.where(remaining_seam >= seam)] += 2         
+
+    return img
 
 
 
