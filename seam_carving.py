@@ -1,9 +1,19 @@
 import numpy as np
 from numba import jit
-
+import cv2
 import argparse
 
 
+
+
+def visualize_image(im, boolmask=None, rotate=False):
+    visuallize = im.astype(np.uint8)
+    if boolmask is not None:
+        visuallize[np.where(boolmask == False)] = np.array([255, 200, 200]) # BGR
+
+    cv2.imshow("visualization", visuallize)
+    cv2.waitKey(1)
+    return visuallize
 
 
 
