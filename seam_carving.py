@@ -2,12 +2,24 @@ import numpy as np
 from numba import jit
 import cv2
 import argparse
+from scipy.ndimage.filters import convolve
 
 
+FILTER_DX = np.array([
+        [1.0, 2.0, 1.0],
+        [0.0, 0.0, 0.0],
+        [-1.0, -2.0, -1.0],
+    ])
+
+FILTER_DY = np.array([
+        [1.0, 0.0, -1.0],
+        [2.0, 0.0, -2.0],
+        [1.0, 0.0, -1.0],
+    ])
 
 
-def visualize_image(im, boolmask=None, rotate=False):
-    visuallize = im.astype(np.uint8)
+def visualize_image(img, boolmask=None, rotate=False):
+    visuallize = img.astype(np.uint8)
     if boolmask is not None:
         visuallize[np.where(boolmask == False)] = np.array([255, 200, 200]) # BGR
 
@@ -15,6 +27,23 @@ def visualize_image(im, boolmask=None, rotate=False):
     cv2.waitKey(1)
     return visuallize
 
+
+def calc_energy(img, filter_dx=FILTER_DX, filter_dy=FILTER_DY):
+    """
+    Simple gradient magnitude energy map.
+    """
+    # This converts it from a 2D filter to a 3D filter, replicating the same
+    # filter for each channel: R, G, B
+    filter_dxs = np.stack([filter_dx] * 3, axis=2)
+    filter_dys = np.stack([filter_dy] * 3, axis=2)
+
+    img = img.astype('float32')
+    convolved = np.absolute(convolve(img, filter_dxs)) + np.absolute(convolve(img, filter_dys))
+
+    # We sum the energies in the red, green, and blue channels
+    grad_mag_map = convolved.sum(axis=2)
+
+    return grad_mag_map
 
 
 if __name__ == '__main__':
