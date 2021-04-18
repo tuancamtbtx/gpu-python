@@ -28,6 +28,7 @@ def visualize_image(img, boolmask=None, rotate=False):
     return visuallize
 
 
+@jit
 def calc_energy(img, filter_dx=FILTER_DX, filter_dy=FILTER_DY):
     """
     Simple gradient magnitude energy map.
@@ -44,6 +45,33 @@ def calc_energy(img, filter_dx=FILTER_DX, filter_dy=FILTER_DY):
     grad_mag_map = convolved.sum(axis=2)
 
     return grad_mag_map
+
+
+
+def get_minimum_seam(img):
+    r, c, _ = img.shape
+    grad_mag_map = calc_energy(img)
+
+    energy_map = grad_mag_map.copy()
+    backtrack_loc = np.zeros_like(energy_map, dtype=np.int)
+
+    for i in range(1, r):
+        for j in range(0, c):
+            # Handle the left edge of the image, to ensure we don't index -1
+            if j == 0:
+                idx = np.argmin(energy_map[i - 1, j:j + 2])
+                backtrack_loc[i, j] = idx + j
+                min_energy = energy_map[i - 1, idx + j]
+            else:
+                idx = np.argmin(energy_map[i - 1, j - 1:j + 2])
+                backtrack_loc[i, j] = idx + j - 1
+                min_energy = energy_map[i - 1, idx + j - 1]
+
+            energy_map[i, j] += min_energy
+
+    return energy_map, backtrack_loc
+
+
 
 
 if __name__ == '__main__':
