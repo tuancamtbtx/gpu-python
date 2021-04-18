@@ -15,12 +15,12 @@
 - seam_carving.py <mode> <dx> <dy> <image_in> <image_out>
 - Với:
   + mode: cpu hoặc gpu
-  + dx: chiều rộng mới của ảnh
-  + dy: chiều dài mới của ảnh
+  + dx: chiều ngang mới của ảnh
+  + dy: chiều dọc mới của ảnh
   + image_in: ảnh gốc được đưa vào
   + image_out: ảnh sau khi sử dụng seam carving
 
 ### Các tính năng cần thực hiện:
 
-- Chỉnh kích thước ảnh theo chiều rộng của ảnh được đưa vào
-- Chỉnh kích thước ảnh theo chiều dài của ảnh được đưa vào
+- Chỉnh kích thước ảnh theo chiều ngang của ảnh được đưa vào
+- Chỉnh kích thước ảnh theo chiều dọc của ảnh được đưa vào
