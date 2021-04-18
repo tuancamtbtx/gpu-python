@@ -71,6 +71,23 @@ def get_minimum_seam(img):
 
     return energy_map, backtrack_loc
 
+@jit
+def carve_image(img):
+    r, c, _ = img.shape
+
+    energy_map, backtrack_loc = get_minimum_seam(img)
+    # backtrack to find path
+    seam_idx = []
+    boolmask = np.ones((r, c), dtype=np.bool)
+
+    j = np.argmin(energy_map[-1])
+    for i in range(r-1, -1, -1):
+        boolmask[i, j] = False
+        seam_idx.append(j)
+        j = backtrack_loc[i, j]
+
+    seam_idx.reverse()
+    return np.array(seam_idx), boolmask
 
 
 
