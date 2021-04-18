@@ -47,7 +47,7 @@ def calc_energy(img, filter_dx=FILTER_DX, filter_dy=FILTER_DY):
     return grad_mag_map
 
 
-
+@jit
 def get_minimum_seam(img):
     r, c, _ = img.shape
     grad_mag_map = calc_energy(img)
@@ -90,6 +90,29 @@ def carve_image(img):
     return np.array(seam_idx), boolmask
 
 
+@jit
+def remove_seam(img, boolmask):
+    r, c, _ = img.shape
+    boolmask_3c = np.stack([boolmask] * 3, axis=2)
+    return img[boolmask_3c].reshape((r, c - 1, 3))
+
+
+
+def start_seams_removal(img, num_remove):
+
+    new_img = img.copy()
+    for _ in range(num_remove):
+        seam_idx, boolmask = get_minimum_seam(new_img)
+        new_img = remove_seam(new_img, boolmask)
+
+    return new_img
+
+
+
+def main():
+    
+
+    pass
 
 if __name__ == '__main__':
     arg_parse = argparse.ArgumentParser()
