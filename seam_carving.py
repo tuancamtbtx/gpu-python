@@ -17,6 +17,9 @@ FILTER_DY = np.array([
         [1.0, 0.0, -1.0],
     ])
 
+def rotate_image(img, clockwise=1):
+    return np.rot90(img, clockwise)    
+
 
 def visualize_image(img, boolmask=None, rotate=False):
     visuallize = img.astype(np.uint8)
@@ -158,9 +161,31 @@ def start_seams_insertion(img, num_add):
 
 
 def main(img, dx, dy):
+    img = img.astype(np.float64)
+    r, c, _ = img.shape
 
+    # prevent out of size of image
+    assert c + dy > 0 and r + dx > 0 and dy <= c and dx <= r
 
-    pass
+    out_img = img
+
+    if dx < 0:
+        out_img = start_seams_removal(out_img, -dx)
+
+    elif dx > 0:
+        out_img = start_seams_insertion(out_img, dx)
+
+    if dy < 0:
+        out_img = rotate_image(out_img)
+        out_img = start_seams_removal(out_img, -dy)
+        out_img = rotate_image(out_img, clockwise=3)
+
+    elif dy > 0:
+        out_img = rotate_image(out_img)
+        out_img = start_seams_removal(out_img, dy)
+        out_img = rotate_image(out_img, clockwise=3)
+
+    return out_img
 
 if __name__ == '__main__':
     arg_parse = argparse.ArgumentParser()
