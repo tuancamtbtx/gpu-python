@@ -3,8 +3,8 @@
 ## Cài đặt seam carving
 
 ## Thành viên:
-| No.  | Họ và tên | MSSV |
-| ------------- | ------------- | ------------- |
-| 1  | Nguyễn Văn Tuấn | 1512638 |
-| 2  | -  | - |
-| 3  | -  | - |
+| No.  | Họ và tên | MSSV | Email |
+| ------------- | ------------- | ------------- | ------------- |
+| 1  | Nguyễn Văn Tuấn | 1512638 | nguyenvantuan140397@gmail.com|
+| 2  | -  | - | hieulethanh.dev@gmail.com| 
+| 3  | -  | - | phanhuutu.07.05.1999@gmail.com |
