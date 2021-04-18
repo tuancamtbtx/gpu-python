@@ -12,7 +12,7 @@
 
 ## Cách tổ chức:
 ### Tham số dòng lệnh:
-- seam_carving.py [-mode <mode>] [-dx <dx>] [-dy <dy>] [-in <image_in>] [-out <image_out>
+- seam_carving.py [-mode <running_mode>] [-dx <DX>] [-dy <DY>] [-in <image_in>] [-out <image_out>]
 - Với:
   + mode: cpu hoặc gpu
   + dx: chiều ngang mới của ảnh
