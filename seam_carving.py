@@ -1,18 +1,26 @@
 import cv2
 import numpy as np
-from numba import jit
+from numba import jit, njit
 from scipy.ndimage.filters import convolve, convolve1d
 
 import argparse
 
+@njit
 def rgb2gray(img):
-    return np.dot(img[...,:3], [0.2989, 0.5870, 0.1140])
+    img = img.astype(np.uint8)
+    h, w = img.shape[:2]
+    gray_img = np.zeros((h, w), dtype=np.float64)
+    for i in range(h):
+        for j in range(w):
+            gray_img[i][j] = img[i][j][0]*0.2989 + img[i][j][1]*0.5870 + img[i][j][2]*0.1140
+
+    return gray_img
 
 def rotate_image(img, clockwise):
     k = 1 if clockwise else 3
     return np.rot90(img, k)
 
-@jit
+@njit
 def convolve2d(grayscale, filter_dx, filter_dy):
     # Add zero padding to the input image
     image_padded = np.zeros((grayscale.shape[0] + 2, grayscale.shape[1] + 2))
@@ -29,6 +37,7 @@ def convolve2d(grayscale, filter_dx, filter_dy):
             
     return energy_map
 
+@njit
 def calc_energy(img):
     # convert rgb to grayscale
     grayscale = rgb2gray(img)
@@ -50,18 +59,37 @@ def calc_energy(img):
     return energy_map
 
 def get_minimum_seam(img):
-    # r, c = img.shape[:2]
-    # energy_map = calc_energy(img)
+    h, w = img.shape[:2]
 
-    # M = energy_map.copy()
-    # backtrack = np.zeros_like(M, dtype=np.int)
+    M = calc_energy(img) # matrix to store minimum energy value seen upon pixel
+    backtrack = np.zeros_like(M, dtype=np.int)
 
-    # # TODO: 
-    # return M, backtrack
+    # TODO:
+    for i in range(1, h):
+        for j in range(0, w):
+            # Handle the left edge of the image
+            if j == 0:
+                idx = np.argmin(M[i-1, j:j + 2])
+                backtrack[i, j] = idx + 1
+                min_energy = M[i-1, idx+j]
+            else:
+                idx = np.argmin(M[i - 1, j - 1:j + 2])
+                backtrack[i, j] = idx + j - 1
+                min_energy = M[i - 1, idx + j - 1]
+            
+            M[i, j] +=  min_energy
 
+    return M, backtrack
+
+def remove_seam(img):
     pass
 
 def remove_seams(img, num_remove, rot=False):
+    # for _ in range(num_remove):
+    #     seam_idx = get_minimum_seam(img)
+    #     img = remove_seam(img)
+    
+    # return img
     pass
 
 def insert_seams(img, num_insert, rot=False):
