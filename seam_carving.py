@@ -58,11 +58,12 @@ def calc_energy(img):
 
     return energy_map
 
+@njit
 def get_minimum_seam(img):
     h, w = img.shape[:2]
 
     M = calc_energy(img) # matrix to store minimum energy value seen upon pixel
-    backtrack = np.zeros_like(M, dtype=np.int)
+    backtrack = np.zeros_like(M, dtype=np.uint8)
 
     # TODO:
     for i in range(1, h):
@@ -79,18 +80,47 @@ def get_minimum_seam(img):
             
             M[i, j] +=  min_energy
 
-    return M, backtrack
+    # back tracking to find minimum cost path
 
-def remove_seam(img):
-    pass
+    # column coordinations using for insert seams in later
+    seam_idx = []
+    # create a (h, w) matrix filled with the value True
+    # and removing all pixels from the image which have False in later
+    bool_mask = np.ones((h, w), dtype=np.bool8)
+    # find the minum cost in bottom row
+    j = np.argmin(M[-1]) 
+    for i in range(h-1, -1, -1):
+        bool_mask[i, j] = False
+        seam_idx.append(j)
+        j = backtrack[i, j]
+    
+    # seam_idx.reverse()
+    seam_idx = [seam_idx[-i - 1] for i in range(len(seam_idx))]
+    return np.array(seam_idx), bool_mask
+
+@jit
+def remove_seam(img, bool_mask):
+    h, w = img.shape[:2]
+    # print(bool_mask.shape)
+    # mask3c = np.stack([bool_mask] * 3, axis=2)
+    # print(mask3c.shape)
+    # mask3c.append([bool_mask])
+    mask3c = np.empty((h, w, 3),dtype=np.bool8)
+    for i in range(h):
+        for j in range(w):
+            for k in range(3):
+                mask3c[i][j][k] = bool_mask[i][j]
+    # print(mask3c.shape)
+    # print(type(mask3c[0][0][1]))
+
+    return img[mask3c].reshape((h, w-1, 3))
 
 def remove_seams(img, num_remove, rot=False):
-    # for _ in range(num_remove):
-    #     seam_idx = get_minimum_seam(img)
-    #     img = remove_seam(img)
-    
-    # return img
-    pass
+    for _ in range(num_remove):
+        _, bool_mask = get_minimum_seam(img)
+        img = remove_seam(img, bool_mask)
+
+    return img
 
 def insert_seams(img, num_insert, rot=False):
     pass
