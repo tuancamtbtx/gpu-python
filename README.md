@@ -3,11 +3,11 @@
 ## Cài đặt seam carving
 
 ## Thành viên:
-| No.  | Họ và tên | MSSV | Email |
-| ------------- | ------------- | ------------- | ------------- |
-| 1  | Nguyễn Văn Tuấn | 1512638 | nguyenvantuan140397@gmail.com|
-| 2  | Lê Thanh Hiếu | 1712434 | hieulethanh.dev@gmail.com| 
-| 3  | Phan Hữu Tú  | 1712861| tuhp.tech@gmail.com |
+| No. | Họ và tên       | MSSV    | Account Github                                        | Email                         |
+| --- | --------------- | ------- | ----------------------------------------------------- | ----------------------------- |
+| 1   | Nguyễn Văn Tuấn | 1512638 | [tuancamtbtx](https://github.com/tuancamtbtx)         | nguyenvantuan140397@gmail.com |
+| 2   | Lê Thanh Hiếu   | 1712434 | [hieulethanh-dev](https://github.com/hieulethanh-dev) | hieulethanh.dev@gmail.com     |
+| 3   | Phan Hữu Tú     | 1712861 | [tuhp-tech](https://github.com/tuhp-tech)             | tuhp.tech@gmail.com           |
 
 
 ## Cách tổ chức:
@@ -24,17 +24,35 @@
 - Các tính năng cần thực hiện:
   - Xóa seams (giảm kích thước của ảnh) theo chiều cao, rộng của ảnh
   - Thêm seams (tăng kích thước của ảnh) theo chiều cao, rộng của ảnh
-
 ### Thuật toán xóa seams(tuần tự)
 #### 1. Tính Energy Map 
+- Dùng edge detetion 
+  - Chuyển ảnh từ rgb sang graysale
+  - Phát hiện ảnh theo chiều x (1): thực hiện convolution giữa ảnh grayscale với bộ lọc x-Sobel
+  - Phát hiện ảnh theo chiều y (2): thực hiện convolution giữa ảnh grayscale với bộ lọc y-Sobel
+- Độ quan trọng của mỗi pixl  = abs(kết quả tương ứng của (1)) + abs(kết quả tương ứng của (2))
+
 #### 2. Tìm bảng chi phí nhỏ nhất (Minimum Cost Table)
+- Giá trị của 1 pixel trên ma trận tổng hợp chi phí tương ứng với giá trị năng lượng của pixel cộng với giá trị nhỏ nhất của 3 pixels kề trên
+
 #### 3. Tìm Seam có chi phí nhỏ nhất
+- Quay lui từ hàng cuối cùng của ma trận lên hàng thứ 0 để tìm seam có chi phí nhỏ nhất
+
 #### 4. Xóa Seam nhỏ nhất tìm được ở bước 3 
+- Khởi tạo 1 ma trận boolean có kích thước tương tự ma trận energy toàn bộ phần tử có giá trị True làm mask
 #### 5. Lặp lại các bước từ 1 tới 4 cho đến khi đủ số lượng seams cần xóa
 
 ### Thuật toán chèn thêm seams
 - Tương tự như thuật toán xóa seams nhưng ngược lại thay vì xóa seams nhỏ nhất ta sẽ nhân bản chúng.
   - Đầu tiên ta thực hiện xóa n seams trên 1 images duplicate từ image gốc và ghi lại theo đúng thứ tự tọa độ các seams bị xóa. Sau đó chèn các seams vào ảnh gốc theo thứ tự chúng được xóa
+
+
+## Quy trình tối ưu hóa
+### Bảng đo thời gian
+| Phiên bản    | rgb2gray | do_sobel | get_minimum_seam | remove_seam | total |
+| ------------ | -------- | -------- | ---------------- | ----------- | ----- |
+| Tuần tự      |          |          |                  |             |       |
+| Tối ưu hóa 1 |          |          |                  |             |       |
 
 ## Tối ưu với GPU (dự kiến)
 - Tính Energy map bằng kernel function
@@ -43,3 +61,4 @@
 
 ## Tham khảo
 - https://github.com/kalpeshdusane/Seam-Carving-B.E.-Project
+- Slides đồ án môn Lập trình song song
