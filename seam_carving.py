@@ -107,7 +107,7 @@ def get_minimum_seam(img):
     return np.array(seam_idx), bool_mask
 
 
-@jit(warn=False)
+@jit
 def remove_seam(img, bool_mask):
     h, w, _ = img.shape
     # print(bool_mask.shape)
@@ -131,7 +131,7 @@ def remove_seams(img, num_remove, rot=False):
     return img
 
 
-@jit(warn=False)
+@jit
 def insert_seam(img, seam_idx):
     h, w = img.shape[:2]
     output = np.zeros((h, w+1, 3))

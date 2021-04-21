@@ -31,12 +31,14 @@
   - Phát hiện ảnh theo chiều x (1): thực hiện convolution giữa ảnh grayscale với bộ lọc x-Sobel
   - Phát hiện ảnh theo chiều y (2): thực hiện convolution giữa ảnh grayscale với bộ lọc y-Sobel
 - Độ quan trọng của mỗi pixl  = abs(kết quả tương ứng của (1)) + abs(kết quả tương ứng của (2))
-
 #### 2. Tìm bảng chi phí nhỏ nhất (Minimum Cost Table)
 - Giá trị của 1 pixel trên ma trận tổng hợp chi phí tương ứng với giá trị năng lượng của pixel cộng với giá trị nhỏ nhất của 3 pixels kề trên
+![](/readmeimages/algo1.png)
+![](/readmeimages/algo2.png)
 
 #### 3. Tìm Seam có chi phí nhỏ nhất
 - Quay lui từ hàng cuối cùng của ma trận lên hàng thứ 0 để tìm seam có chi phí nhỏ nhất
+![](/readmeimages/algo3.png)
 
 #### 4. Xóa Seam nhỏ nhất tìm được ở bước 3 
 - Khởi tạo 1 ma trận boolean có kích thước tương tự ma trận energy toàn bộ phần tử có giá trị True làm mask
