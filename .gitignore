@@ -1,5 +1,10 @@
 .git
 /build
 /dist
+<<<<<<< HEAD
 
 __pycache__
+=======
+/.vscode
+/__pycache__/*
+>>>>>>> origin/cpu_dev
