@@ -20,6 +20,9 @@
   + image_in: ảnh gốc được đưa vào
   + image_out: ảnh sau khi sử dụng seam carving
 
+### Ví dụ:
+- python seam_carving.py -mode cpu -dx 10 -dy 0 -in /home/tuhp/study/LTSSUD/gpu-python/pietro_first_seam.jpg -out /home/tuhp/study/LTSSUD/gpu-python/pietro_first_seam_out.jpg
+
 ### Các tính năng cần thực hiện:
 
 - Chỉnh kích thước ảnh theo chiều ngang của ảnh được đưa vào
