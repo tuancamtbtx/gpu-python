@@ -39,28 +39,51 @@ class Test(unittest.TestCase):
     #     image.show()
     #     image.close()
 
-    def test_insert_seams(self):
+    # def test_insert_seams(self):
+    #     img = cv2.imread('images/input.jpg')
+    #     print('original image shape: ')
+    #     print(img.shape)
+    #     num_insert = int(input("input num of seams to insert: "))
+    #     output = sc.insert_seams(img, num_insert)
+    #     print('new image shape: ')
+    #     print(output.shape)
+    #     cv2.imwrite('images/output_insert' +str(num_insert) + 'seams.jpg', output)
+    #     image = Image.open('images/output_insert' +str(num_insert) + 'seams.jpg')
+    #     image.show()
+    #     image.close()
+
+    # def test_remove_by_rows(self):
+    #     img = cv2.imread('images/input.jpg')
+    #     print('original image shape: ')
+    #     print(img.shape)
+    #     num_remove = int(input("input num of seams to remove: "))
+    #     output = img
+    #     output = sc.rotate_image(output, True)
+    #     output = sc.remove_seams(output, num_remove, rot=True)
+    #     output = sc.rotate_image(output, False)
+    #     print('new image shape: ')
+    #     print(output.shape)
+    #     cv2.imwrite('images/output_remove' +str(num_remove) + 'seams_by_rows.jpg', output)
+    #     image = Image.open('images/output_remove' +str(num_remove) + 'seams_by_rows.jpg')
+    #     image.show()
+    #     image.close()
+
+
+    def test_insert_by_rows(self):
         img = cv2.imread('images/input.jpg')
         print('original image shape: ')
         print(img.shape)
         num_insert = int(input("input num of seams to insert: "))
-        output = sc.insert_seams(img, num_insert)
+        output = img
+        output = sc.rotate_image(output, True)
+        output = sc.insert_seams(output, num_insert, rot=True)
+        output = sc.rotate_image(output, False)
         print('new image shape: ')
         print(output.shape)
-        cv2.imwrite('images/output_insert' +str(num_insert) + 'seams.jpg', output)
-        image = Image.open('images/output_insert' +str(num_insert) + 'seams.jpg')
+        cv2.imwrite('images/output_insert' +str(num_insert) + 'seams_by_rows.jpg', output)
+        image = Image.open('images/output_insert' +str(num_insert) + 'seams_by_rows.jpg')
         image.show()
         image.close()
-
-    # def test_insert_300seams(self):
-    #     img = cv2.imread('images/input.jpg')
-    #     img = img.astype(np.float64)
-    #     output = sc.insert_seams(img, 300)
-    #     cv2.imwrite('images/output_insert300seams.jpg', output)
-    #     image = Image.open('images/output_insert300seams.jpg')
-    #     image.show()
-    #     image.close()
-
 
 if __name__ == '__main__':
     unittest.main()

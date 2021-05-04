@@ -137,7 +137,7 @@ def rotate_image(img, clockwise):
 
 
 @njit
-def convolve2d(grayscale, filter_dx, filter_dy):
+def do_sobel(grayscale, filter_dx, filter_dy):
     # Add zero padding to the input image
     image_padded = np.zeros((grayscale.shape[0] + 2, grayscale.shape[1] + 2))
     image_padded[1:-1, 1:-1] = grayscale
@@ -171,7 +171,7 @@ def calc_energy(img):
     ])
 
     # sobel
-    energy_map = convolve2d(grayscale, filter_dx, filter_dy)
+    energy_map = do_sobel(grayscale, filter_dx, filter_dy)
 
     return energy_map
 
@@ -246,6 +246,8 @@ def remove_seams(img, num_remove, rot=False):
 def insert_seam(img, seam_idx):
     h, w = img.shape[:2]
     output = np.zeros((h, w+1, 3))
+    # The inserted pixel values are derived from an
+    # average of left and right neighbors.
     for r in range(h):
         c = seam_idx[r]
         for ch in range(3):  # chanel
@@ -286,30 +288,29 @@ def insert_seams(img, num_insert, rot=False):
 
 
 def seam_carving(img, dx, dy):
-    # img = img.astype(np.float64)
-    # h, w = img.shape[:2]
-    # assert h + dy > 0 and w + dx > 0 and dy <= h and dx <= w
+    img = img.astype(np.float64)
+    h, w = img.shape[:2]
+    assert h + dy > 0 and w + dx > 0 and dy <= h and dx <= w
 
-    # output = img
+    output = img
 
-    # if dx < 0:
-    #     output = remove_seams(output, -dx)
+    if dx < 0:
+        output = remove_seams(output, -dx)
 
-    # elif dx > 0:
-    #     output = insert_seams(output, dx)
+    elif dx > 0:
+        output = insert_seams(output, dx)
 
-    # if dy < 0:
-    #     output = rotate_image(output, True)
-    #     output = remove_seams(output, -dy, rot=True)
-    #     output = rotate_image(output, False)
+    if dy < 0:
+        output = rotate_image(output, True)
+        output = remove_seams(output, -dy, rot=True)
+        output = rotate_image(output, False)
 
-    # elif dy > 0:
-    #     output = rotate_image(output, True)
-    #     output = insert_seams(output, dy, rot=True)
-    #     output = rotate_image(output, False)
+    elif dy > 0:
+        output = rotate_image(output, True)
+        output = insert_seams(output, dy, rot=True)
+        output = rotate_image(output, False)
 
-    # return output
-    pass
+    return output
 
 
 def start_seams_removal(img, num_remove):
