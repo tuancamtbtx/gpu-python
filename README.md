@@ -9,6 +9,38 @@
 | 2   | Lê Thanh Hiếu   | 1712434 | [hieulethanh-dev](https://github.com/hieulethanh-dev) | hieulethanh.dev@gmail.com     |
 | 3   | Phan Hữu Tú     | 1712861 | [tuhp-tech](https://github.com/tuhp-tech)             | tuhp.tech@gmail.com           |
 
+## Phân công công việc
+- Tuần 01: Nắm vững thuật toán seam carving tuần tự và numba tuần tự
+  - Tìm hiểu thuật toán, numba nopython
+    - Thành viên tham gia: Cả nhóm
+  - Cài đặt tuần tự (dự kiến 90%):
+    - Thành viên tham gia: Cả nhóm
+  - Chuẩn bị báo cáo, viết notebook và demo:
+    - Thành viên tham gia: Hiếu
+- Tuần 02: Cài đặt được ít nhất 50% phần tuần tự
+  - Giải quyết các yêu cầu, góp ý của thầy và các nhóm:
+    - Bổ sung file README, Notebook: phân công công việc chi tiết hơn, bổ sung thông tin thuật toán chèn thêm seam, bổ sung phần mô tả bài toán
+      - Thành viên tham gia: Tuấn, Hiếu
+    - Giải quyết câu hỏi, góp ý của các nhóm: về chiến lược thêm, xóa ảnh; xóa theo chiều ngang có tốt hơn?
+      - Thành viên tham gia: Tú
+  - Tìm cách tối ưu hóa công thức tính energy:
+    - Thành viên tham gia: Tú
+  - Chuẩn bị báo cáo, notebook, demo cho buổi báo cáo tuần 03:
+    - Thành viên tham gia: Tuấn, Tú
+- Tuần 03: Hoàn thành 100% tuần tự
+  - Tìm hiểu về song song hóa trên numba
+    - Thành viên tham gia: Cả nhóm
+    - Deadline: 09/05
+  - Họp nhóm và phân chia công việc song song hóa
+    - Thành viên: Cả nhóm
+    - Thời gian: 09/05
+  - Cài đặt baseline song song:
+    - Thành viên tham gia: Cả nhóm
+- Tuần 04: Hoàn thành 100% phần tuần tự, bắt đầu sớm phần song song
+- Tuần 05: Hoàn thành baseline song song hóa ứng dụng
+- Tuần 06: Hoàn thành 2 phiên bản cải tiến
+- Tuần 07: Hoàn thành 100% đồ án
+- Tuần 08: Kiểm tra sai sót, bổ sung
 
 ## Cách tổ chức:
 ### Tham số dòng lệnh:
