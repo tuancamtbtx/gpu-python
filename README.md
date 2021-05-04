@@ -67,6 +67,11 @@
 - Giá trị của 1 pixel trên ma trận tổng hợp chi phí tương ứng với giá trị năng lượng của pixel cộng với giá trị nhỏ nhất của 3 pixels kề trên
 ![](/readmeimages/algo1.png)
 ![](/readmeimages/algo2.png)
+### Ví dụ:
+- python seam_carving.py -mode cpu -dx 10 -dy 0 -in /home/tuhp/study/LTSSUD/gpu-python/pietro_first_seam.jpg -out /home/tuhp/study/LTSSUD/gpu-python/pietro_first_seam_out.jpg
+
+### Các tính năng cần thực hiện:
+>>>>>>> origin/cpu_dev_tuhp
 
 #### 3. Tìm Seam có chi phí nhỏ nhất
 - Quay lui từ hàng cuối cùng của ma trận lên hàng thứ 0 để tìm seam có chi phí nhỏ nhất
