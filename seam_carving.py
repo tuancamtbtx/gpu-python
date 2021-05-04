@@ -36,7 +36,7 @@ def visualize_image(img, boolmask=None, rotate=False):
 	return visuallize
 
 
-# @jit
+@jit(forceobj=True)
 def calc_energy(img, filter_dx=FILTER_DX, filter_dy=FILTER_DY):
 	"""
 	Simple gradient magnitude energy map.
@@ -46,7 +46,6 @@ def calc_energy(img, filter_dx=FILTER_DX, filter_dy=FILTER_DY):
 	filter_dxs = np.stack([filter_dx] * 3, axis=2)
 	filter_dys = np.stack([filter_dy] * 3, axis=2)
 
-	img = img.astype('float32')
 	convolved = np.absolute(convolve(img, filter_dxs)) + np.absolute(convolve(img, filter_dys))
 
 	# We sum the energies in the red, green, and blue channels
@@ -55,13 +54,13 @@ def calc_energy(img, filter_dx=FILTER_DX, filter_dy=FILTER_DY):
 	return grad_mag_map
 
 
-@jit
+@jit(forceobj=True)
 def get_minimum_seam(img):
 	r, c, _ = img.shape
 	grad_mag_map = calc_energy(img)
 
 	energy_map = grad_mag_map.copy()
-	backtrack_loc = np.zeros_like(energy_map, dtype=np.int)
+	backtrack_loc = np.zeros_like(energy_map, dtype=np.int32)
 
 	for i in range(1, r):
 		for j in range(0, c):
@@ -80,7 +79,7 @@ def get_minimum_seam(img):
 	# backtrack to find path
 	seam_idx = []
 
-	boolmask = np.ones((r, c), dtype=np.bool)
+	boolmask = np.ones((r, c), dtype=np.bool8)
 	j = np.argmin(energy_map[-1])
 	for i in range(r-1, -1, -1):
 		boolmask[i, j] = False
@@ -90,14 +89,14 @@ def get_minimum_seam(img):
 	seam_idx.reverse()
 	return np.array(seam_idx), boolmask
 
-@jit
+@jit(forceobj=True)
 def remove_seam(img, boolmask):
 	r, c, _ = img.shape
 	boolmask_3c = np.stack([boolmask] * 3, axis=2)
 	return img[boolmask_3c].reshape((r, c - 1, 3))
 
 
-@jit
+@jit(forceobj=True)
 def add_seam(img, seam_idx):
 	r, c, _ = img.shape
 	out_img = np.zeros((r, c + 1, 3))
@@ -311,8 +310,6 @@ def seam_carving(img, dx, dy):
         output = rotate_image(output, False)
 
     return output
-
-
 def start_seams_removal(img, num_remove):
 
 	new_img = img.copy()
@@ -324,24 +321,24 @@ def start_seams_removal(img, num_remove):
 
 
 def start_seams_insertion(img, num_add):
-	seams_record = []
+	seam_idxs_record = []
 	temp_img = img.copy()
 
 	for _ in range(num_add):
-		seam_idx, boolmask = get_minimum_seam(temp_img)
+		seam_idx, bool_mask = get_minimum_seam(temp_img)
 
-		seams_record.append(seam_idx)
-		temp_img = remove_seam(temp_img, boolmask)
+		seam_idxs_record.append(seam_idx)
+		temp_img = remove_seam(temp_img, bool_mask)
 
-	seams_record.reverse()
+	seam_idxs_record.reverse()
 
 	for _ in range(num_add):
-		seam = seams_record.pop()
-		img = add_seam(img, seam)
+		seam_idx = seam_idxs_record.pop()
+		img = add_seam(img, seam_idx)
 
-		# update the remaining seam indices
-		for remaining_seam in seams_record:
-			remaining_seam[np.where(remaining_seam >= seam)] += 2         
+		for remain_seam in seam_idxs_record:
+			remain_seam[np.where(remain_seam >= seam_idx)] += 2
+
 
 	return img
 
@@ -411,7 +408,7 @@ if __name__ == '__main__':
 		out_img = main(in_img, dx, dy)
 
 		cv2.imwrite(out_img_path, out_img)
-		visualize_image(out_img)
+		# visualize_image(out_img)
 		pass
     args = vars(arg_parse.parse_args())
 
