@@ -53,11 +53,51 @@ def calc_energy(img, filter_dx=FILTER_DX, filter_dy=FILTER_DY):
 
 	return grad_mag_map
 
+@jit(forceobj=True)
+def forward_energy(im):
+    """
+    Forward energy algorithm as described in "Improved Seam Carving for Video Retargeting"
+    by Rubinstein, Shamir, Avidan.
+    Vectorized code adapted from
+    https://github.com/axu2/improved-seam-carving.
+    """
+    h, w = im.shape[:2]
+    im = cv2.cvtColor(im.astype(np.uint8), cv2.COLOR_BGR2GRAY).astype(np.float64)
+
+    energy = np.zeros((h, w))
+    m = np.zeros((h, w))
+    
+    U = np.roll(im, 1, axis=0)
+    L = np.roll(im, 1, axis=1)
+    R = np.roll(im, -1, axis=1)
+    
+    cU = np.abs(R - L)
+    cL = np.abs(U - L) + cU
+    cR = np.abs(U - R) + cU
+    
+    for i in range(1, h):
+        mU = m[i-1]
+        mL = np.roll(mU, 1)
+        mR = np.roll(mU, -1)
+        
+        mULR = np.array([mU, mL, mR])
+        cULR = np.array([cU[i], cL[i], cR[i]])
+        mULR += cULR
+
+        argmins = np.argmin(mULR, axis=0)
+        m[i] = np.choose(argmins, mULR)
+        energy[i] = np.choose(argmins, cULR)
+    
+    # vis = visualize(energy)
+    # cv2.imwrite("forward_energy_demo.jpg", vis)     
+        
+    return energy
 
 @jit(forceobj=True)
 def get_minimum_seam(img):
 	r, c, _ = img.shape
-	grad_mag_map = calc_energy(img)
+	# grad_mag_map = calc_energy(img)
+	grad_mag_map = forward_energy(img)
 
 	energy_map = grad_mag_map.copy()
 	backtrack_loc = np.zeros_like(energy_map, dtype=np.int32)
@@ -375,11 +415,6 @@ def main(img, dx, dy):
 
 if __name__ == '__main__':
 	arg_parse = argparse.ArgumentParser()
-
-	arg_parse.add_argument("-mode", help="Type of running seam: cpu or gpu", default=0)
-
-	arg_parse.add_argument("-dy", help="Number of vertical seams to add/subtract", type=int, default=0)
-	arg_parse.add_argument("-dx", help="Number of horizontal seams to add/subtract", type=int, default=0)
 
 	arg_parse.add_argument("-in", help="Path to image", required=True)
 	arg_parse.add_argument("-out", help="Output file name", required=True)
