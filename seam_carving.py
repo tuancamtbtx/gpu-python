@@ -1,10 +1,17 @@
+from PIL import Image
 import cv2
 import numpy as np
 from numba import jit, njit
-from scipy.ndimage.filters import convolve, convolve1d
-from scipy import ndimage as ndi
 
 import argparse
+
+# ignore numba warning
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning, NumbaWarning
+import warnings
+
+warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
+warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
+warnings.simplefilter('ignore', category=NumbaWarning)
 
 
 @njit
@@ -19,29 +26,9 @@ def rgb2gray(img):
 
     return gray_img
 
-
 def rotate_image(img, clockwise):
     k = 1 if clockwise else 3
     return np.rot90(img, k)
-
-
-@njit
-def do_sobel(grayscale, filter_dx, filter_dy):
-    # Add zero padding to the input image
-    image_padded = np.zeros((grayscale.shape[0] + 2, grayscale.shape[1] + 2))
-    image_padded[1:-1, 1:-1] = grayscale
-
-    # energy_map = np.absolute(convolve(grayscale, filter_du)) + np.absolute(convolve(grayscale, filter_dv))
-    energy_map = np.zeros_like(grayscale)
-    for x in range(grayscale.shape[1]):
-        for y in range(grayscale.shape[0]):
-            # element-wise multiplication of the kernel and the image
-            gx = (filter_dx * image_padded[y: y+3, x: x+3]).sum()
-            gy = (filter_dy * image_padded[y: y+3, x: x+3]).sum()
-            energy_map[y, x] = np.absolute(gx) + np.absolute(gy)
-
-    return energy_map
-
 
 @njit
 def calc_energy(img):
@@ -59,8 +46,18 @@ def calc_energy(img):
         [1.0, 0.0, -1.0],
     ])
 
-    # sobel
-    energy_map = do_sobel(grayscale, filter_dx, filter_dy)
+    # Add zero padding to the input image
+    image_padded = np.zeros((grayscale.shape[0] + 2, grayscale.shape[1] + 2))
+    image_padded[1:-1, 1:-1] = grayscale
+
+    # energy_map = np.absolute(convolve(grayscale, filter_du)) + np.absolute(convolve(grayscale, filter_dv))
+    energy_map = np.zeros_like(grayscale)
+    for x in range(grayscale.shape[1]):
+        for y in range(grayscale.shape[0]):
+            # element-wise multiplication of the kernel and the image
+            gx = (filter_dx * image_padded[y: y+3, x: x+3]).sum()
+            gy = (filter_dy * image_padded[y: y+3, x: x+3]).sum()
+            energy_map[y, x] = np.absolute(gx) + np.absolute(gy)
 
     return energy_map
 
@@ -107,13 +104,9 @@ def get_minimum_seam(img):
     return np.array(seam_idx), bool_mask
 
 
-@jit
+@jit(forceobj=True)
 def remove_seam(img, bool_mask):
     h, w, _ = img.shape
-    # print(bool_mask.shape)
-    # mask3c = np.stack([bool_mask] * 3, axis=2)
-    # print(mask3c.shape)
-    # mask3c.append([bool_mask])
     mask3c = np.empty((h, w, 3), dtype=np.bool8)
     for i in range(h):
         for j in range(w):
@@ -133,45 +126,45 @@ def remove_seams(img, num_remove, rot=False):
 
 @jit
 def insert_seam(img, seam_idx):
-    h, w = img.shape[:2]
-    output = np.zeros((h, w+1, 3))
+    height, width, chanel = img.shape
+    output = np.zeros((height, width+1, chanel))
     # The inserted pixel values are derived from an
     # average of left and right neighbors.
-    for r in range(h):
-        c = seam_idx[r]
-        for ch in range(3):  # chanel
-            if c == 0:
-                p = np.average(img[r, c:c+2, ch])
-                output[r, c, ch] = img[r, c, ch]
-                output[r, c+1, ch] = p
-                output[r, c+1:, ch] = img[r, c:, ch]
+    for row in range(height):
+        col = seam_idx[row]
+        for ch in range(chanel):
+            if col == 0:
+                p = np.average(img[row, col:col+2, ch])
+                print(p)
+                output[row, col, ch] = img[row, col, ch]
+                output[row, col+1, ch] = p
+                output[row, col+1:, ch] = img[row, col:, ch]
             else:
-                p = np.average(img[r, c - 1: c + 1, ch])
-                output[r, :c, ch] = img[r, :c, ch]
-                output[r, c, ch] = p
-                output[r, c+1:, ch] = img[r, c:, ch]
+                p = np.average(img[row, col - 1: col + 1, ch])
+                output[row, :col, ch] = img[row, :col, ch]
+                output[row, col, ch] = p
+                output[row, col+1:, ch] = img[row, col:, ch]
 
     return output
 
 
-def insert_seams(img, num_insert, rot=False):
-    seam_idxs_record = []
-    temp_img = img.copy()
-
+def insert_seams(img, num_insert):
+    temp_img = img.copy() # create replicating image from the input image
+    seams_record = []
     for _ in range(num_insert):
         seam_idx, bool_mask = get_minimum_seam(temp_img)
-
-        seam_idxs_record.append(seam_idx)
+        seams_record.append(seam_idx)
         temp_img = remove_seam(temp_img, bool_mask)
 
-    seam_idxs_record.reverse()
+    seams_record.reverse()
 
     for _ in range(num_insert):
-        seam_idx = seam_idxs_record.pop()
+        seam = seams_record.pop()
         img = insert_seam(img, seam_idx)
 
-        for remain_seam in seam_idxs_record:
-            remain_seam[np.where(remain_seam >= seam_idx)] += 2
+        # update remaining seam indices
+        for remain_seam in seams_record:
+            remain_seam[np.where(remain_seam >= seam)] += 2
 
     return img
 
