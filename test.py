@@ -1,66 +1,134 @@
-import unittest
 import seam_carving as sc
 import cv2
 import numpy as np
 from PIL import Image
+import time
+
+INPUT = 'images/input.jpg'
 
 
-class Test(unittest.TestCase):
+def test_calc_energy(show_img=False):
+	print("TEST CALCULATE ENERGY")
 
-    # def test_sobel(self):
-    #     img = cv2.imread('images/input.jpg')
-    #     output = sc.calc_energy(img)
-    #     cv2.imwrite('images/output_sobel.jpg', output)
-    #     image = Image.open('images/output_sobel.jpg')
-    #     image.show()
-    #     image.close()
+	start = time.perf_counter()
+	img = cv2.imread(INPUT)
 
-    # def test_energy(self):
-    #     img = cv2.imread('images/input.jpg')
-    #     output = sc.calc_energy(img)
-    #     print(output)
+	output = sc.calc_energy(img)
 
-    # def test_get_minimum_seam(self):
-    #     img = cv2.imread('images/input.jpg')
-    #     img = img.astype(np.float64)
-    #     seam_idx, bool_mask = sc.get_minimum_seam(img)
-    #     print(seam_idx)
+	cv2.imwrite('images/ouput_energy.jpg', output)
+	if show_img:
+		image = Image.open('images/ouput_energy.jpg')
+		image.show()
+	print(f"Completed Execution in {time.perf_counter() - start} seconds")
 
-    # def test_remove_seams(self):
-    #     img = cv2.imread('images/input.jpg')
-    #     print('original image shape: ')
-    #     print(img.shape)
-    #     num_remove = int(input("input num of seams to remove: "))
-    #     output = sc.remove_seams(img, num_remove)
-    #     print('new image shape: ')
-    #     print(output.shape)
-    #     cv2.imwrite('images/output_remove' +str(num_remove) + 'seams.jpg', output)
-    #     image = Image.open('images/output_remove' +str(num_remove) + 'seams.jpg')
-    #     image.show()
-    #     image.close()
+def test_forward_energy(show_img=False):
+	print("TEST CALCULATE FORWARD ENERGY")
 
-    def test_insert_seams(self):
-        img = cv2.imread('images/input.jpg')
-        print('original image shape: ')
-        print(img.shape)
-        num_insert = int(input("input num of seams to insert: "))
-        output = sc.insert_seams(img, num_insert)
-        print('new image shape: ')
-        print(output.shape)
-        cv2.imwrite('images/output_insert' +str(num_insert) + 'seams.jpg', output)
-        image = Image.open('images/output_insert' +str(num_insert) + 'seams.jpg')
-        image.show()
-        image.close()
+	start = time.perf_counter()
+	img = cv2.imread(INPUT)
 
-    # def test_insert_300seams(self):
-    #     img = cv2.imread('images/input.jpg')
-    #     img = img.astype(np.float64)
-    #     output = sc.insert_seams(img, 300)
-    #     cv2.imwrite('images/output_insert300seams.jpg', output)
-    #     image = Image.open('images/output_insert300seams.jpg')
-    #     image.show()
-    #     image.close()
+	output = sc.forward_energy(img)
+
+	cv2.imwrite('images/ouput_forward_energy.jpg', output)
+	if show_img:
+		image = Image.open('images/ouput_forward_energy.jpg')
+		image.show()
+	print(f"Completed Execution in {time.perf_counter() - start} seconds")
+
+
+def test_get_minimum_seam():
+	print("TEST GET MINIMUM SEAM")
+	start = time.perf_counter()
+	img = cv2.imread(INPUT)
+	img = img.astype(np.float64)
+	seam_idx, bool_mask = sc.get_minimum_seam(img)
+	print(seam_idx)
+	print(f"Completed Execution in {time.perf_counter() - start} seconds")
+
+def test_remove_by_column(num_seams=10, show_img=False):
+	print("TEST REMOVE BY COLUMN")
+	print("number of seams to remove: " + str(num_seams))
+
+	start = time.perf_counter()
+	img = cv2.imread(INPUT)
+	print('input image shape: ' + str(img.shape))
+
+	output = sc.remove_seams(img, num_seams)
+	print('output image shape: ' + str(output.shape))
+
+	cv2.imwrite('images/output_remove' +str(num_seams) + 'seams_by_column.jpg', output)
+	if show_img:
+		image = Image.open('images/output_remove' +str(num_seams) + 'seams_by_column.jpg')
+		image.show()
+	print(f"Completed Execution in {time.perf_counter() - start} seconds")
+
+
+
+def test_remove_by_row(num_seams=10, show_img=False):
+	print("TEST REMOVE BY ROW")
+	print("number of seams to remove: " + str(num_seams))
+
+	start = time.perf_counter()
+	img = cv2.imread(INPUT)
+	print('input image shape: ' + str(img.shape))
+
+	output = img
+	output = sc.rotate_image(output, True)
+	output = sc.remove_seams(output, num_seams)
+	output = sc.rotate_image(output, False) 
+	print('output image shape: ' + str(output.shape))
+
+	cv2.imwrite('images/output_remove' +str(num_seams) + 'seams_by_row.jpg', output)
+	if show_img:
+		image = Image.open('images/output_remove' +str(num_seams) + 'seams_by_row.jpg')
+		image.show()
+	print(f"Completed Execution in {time.perf_counter() - start} seconds")
+
+def test_insert_by_column(num_seams=10, show_img=False):
+	print("TEST INSERT SEAM BY COLUMN")
+	print("number of seams to insert: " + str(num_seams))
+
+	start = time.perf_counter()
+	img = cv2.imread(INPUT)
+	print('input image shape: ' + str(img.shape))
+
+	output = sc.insert_seams(img, num_seams)
+	print('output image shape: ' + str(output.shape))
+
+	cv2.imwrite('images/output_insert' +str(num_seams) + 'seams_by_column.jpg', output)
+	if show_img:
+		image = Image.open('images/output_insert' +str(num_seams) + 'seams_by_column.jpg')
+		image.show()
+	print(f"Completed Execution in {time.perf_counter() - start} seconds")
+
+def test_insert_by_row(num_seams=10, show_img=False):
+	print("TEST INSERT SEAM BY ROW")
+	print("number of seams to insert: " + str(num_seams))
+
+	start = time.perf_counter()
+
+	img = cv2.imread(INPUT)
+	print('input image shape: ' + str(img.shape))
+
+	output = img
+	output = sc.rotate_image(output, True)
+	output = sc.insert_seams(output, num_seams)
+	output = sc.rotate_image(output, False)
+	print('new image shape: ' + str(output.shape))
+
+	cv2.imwrite('images/output_insert' +str(num_seams) + 'seams_by_rows.jpg', output)
+	if show_img:
+		image = Image.open('images/output_insert' +str(num_seams) + 'seams_by_rows.jpg')
+		image.show()
+	print(f"Completed Execution in {time.perf_counter() - start} seconds")
 
 
 if __name__ == '__main__':
-    unittest.main()
+	# test_calc_energy()
+	# test_forward_energy()
+	# test_get_minimum_seam()
+	test_remove_by_column(num_seams=900)
+	# test_remove_by_row(num_seams=900)
+	# test_insert_by_column(num_seams=500)
+	# test_insert_by_row(num_seams=500)
+	

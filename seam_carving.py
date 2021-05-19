@@ -1,10 +1,17 @@
+from PIL import Image
 import cv2
 import numpy as np
 from numba import jit, njit
-from scipy.ndimage.filters import convolve, convolve1d
-from scipy import ndimage as ndi
 
 import argparse
+
+# ignore numba warning
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning, NumbaWarning
+import warnings
+
+warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
+warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
+warnings.simplefilter('ignore', category=NumbaWarning)
 
 
 @njit
@@ -26,24 +33,6 @@ def rotate_image(img, clockwise):
 
 
 @njit
-def convolve2d(grayscale, filter_dx, filter_dy):
-    # Add zero padding to the input image
-    image_padded = np.zeros((grayscale.shape[0] + 2, grayscale.shape[1] + 2))
-    image_padded[1:-1, 1:-1] = grayscale
-
-    # energy_map = np.absolute(convolve(grayscale, filter_du)) + np.absolute(convolve(grayscale, filter_dv))
-    energy_map = np.zeros_like(grayscale)
-    for x in range(grayscale.shape[1]):
-        for y in range(grayscale.shape[0]):
-            # element-wise multiplication of the kernel and the image
-            gx = (filter_dx * image_padded[y: y+3, x: x+3]).sum()
-            gy = (filter_dy * image_padded[y: y+3, x: x+3]).sum()
-            energy_map[y, x] = np.absolute(gx) + np.absolute(gy)
-
-    return energy_map
-
-
-@njit
 def calc_energy(img):
     # convert rgb to grayscale
     grayscale = rgb2gray(img)
@@ -59,10 +48,83 @@ def calc_energy(img):
         [1.0, 0.0, -1.0],
     ])
 
-    # sobel
-    energy_map = convolve2d(grayscale, filter_dx, filter_dy)
+    # Add zero padding to the input image
+    image_padded = np.zeros((grayscale.shape[0] + 2, grayscale.shape[1] + 2))
+    image_padded[1:-1, 1:-1] = grayscale
+
+    # energy_map = np.absolute(convolve(grayscale, filter_du)) + np.absolute(convolve(grayscale, filter_dv))
+    energy_map = np.zeros_like(grayscale)
+    for x in range(grayscale.shape[1]):
+        for y in range(grayscale.shape[0]):
+            # element-wise multiplication of the kernel and the image
+            gx = (filter_dx * image_padded[y: y+3, x: x+3]).sum()
+            gy = (filter_dy * image_padded[y: y+3, x: x+3]).sum()
+            energy_map[y, x] = np.absolute(gx) + np.absolute(gy)
 
     return energy_map
+
+@njit
+def forward_energy(img):
+    height, width = img.shape[:2]
+
+    img = rgb2gray(img)
+
+    energy = np.zeros((height, width))  # energy table
+    m = np.zeros((height, width))
+
+    U = np.empty(img.shape, dtype=np.float64)
+    for row in range(height):
+        row_array = img[row, :]
+        U[row] = np.roll(row_array, 1)
+
+    L = np.empty(img.shape, dtype=np.float64)
+    R = np.empty(img.shape, dtype=np.float64)
+    for col in range(width):
+        col_array = img[:, col]
+        L[:,col] = np.roll(col_array, 1)
+        R[:,col] = np.roll(col_array, -1)
+
+    cU = np.abs(R - L)
+    cL = np.abs(U - L) + cU
+    cR = np.abs(U - R) + cU
+
+    for i in range(1, height):
+        mU = m[i-1]
+        mL = np.roll(mU, 1)
+        mR = np.roll(mU, -1)
+
+        mULR = np.empty((3, width), dtype=np.float64) 
+        mULR[0] = mU
+        mULR[1] = mL
+        mULR[2] = mR
+
+        cULR = np.empty((3, width), dtype=np.float64) 
+        cULR[0] = cU[i]
+        cULR[1] = cL[i]
+        cULR[2] = cR[i]
+
+        mULR += cULR
+
+        # implement np argmin for numba
+        argmins = np.empty(mULR.shape[1], dtype=np.int8)
+        for j in range(mULR.shape[1]):
+            min_val =  mULR[0][j]
+            min_idx = 0
+            for k in range(1, 3):
+                if min_val > mULR[k][j]:
+                    min_val = mULR[k][j]
+                    min_idx = k
+
+            argmins[j] = min_idx 
+
+        for idx in range(len(argmins)):
+            m[i][idx] = mULR[argmins[idx]][idx]
+            
+        for idx in range(len(argmins)):
+            energy[i][idx] = cULR[argmins[idx]][idx]
+
+    return energy
+
 
 @njit
 def get_minimum_seam(img):
@@ -107,22 +169,25 @@ def get_minimum_seam(img):
     return np.array(seam_idx), bool_mask
 
 
-@jit
+@njit
 def remove_seam(img, bool_mask):
-    h, w, _ = img.shape
-    # print(bool_mask.shape)
-    # mask3c = np.stack([bool_mask] * 3, axis=2)
-    # print(mask3c.shape)
-    # mask3c.append([bool_mask])
-    mask3c = np.empty((h, w, 3), dtype=np.bool8)
-    for i in range(h):
-        for j in range(w):
-            for ch in range(3):
-                mask3c[i][j][ch] = bool_mask[i][j]
+    height, width, chanel = img.shape
 
-    return img[mask3c].reshape((h, w-1, 3))
+    output = np.empty((height, width-1, chanel), dtype=np.float64)
+    for row in range(height):
+        output_col = 0
+        for col in range(width):
+            if bool_mask[row][col]:
+                for ch in range(chanel):
+                    output[row][output_col][ch] = img[row][col][ch]
+                output_col += 1
+            else:
+                continue
+
+    return output
 
 
+@jit
 def remove_seams(img, num_remove, rot=False):
     for _ in range(num_remove):
         _, bool_mask = get_minimum_seam(img)
@@ -131,74 +196,75 @@ def remove_seams(img, num_remove, rot=False):
     return img
 
 
-@jit
+@njit
 def insert_seam(img, seam_idx):
-    h, w = img.shape[:2]
-    output = np.zeros((h, w+1, 3))
-    for r in range(h):
-        c = seam_idx[r]
-        for ch in range(3):  # chanel
-            if c == 0:
-                p = np.average(img[r, c:c+2, ch])
-                output[r, c, ch] = img[r, c, ch]
-                output[r, c+1, ch] = p
-                output[r, c+1:, ch] = img[r, c:, ch]
+    height, width, chanel = img.shape
+    output = np.zeros((height, width+1, chanel))
+    # The inserted pixel values are derived from an
+    # average of left and right neighbors.
+    for row in range(height):
+        col = seam_idx[row]
+        for ch in range(chanel):
+            if col == 0:
+                p = (img[row, col, ch] + img[row, col+1, ch]) / 2
+                output[row, col, ch] = img[row, col, ch]
+                output[row, col+1, ch] = p
+                output[row, col+1:, ch] = img[row, col:, ch]
             else:
-                p = np.average(img[r, c - 1: c + 1, ch])
-                output[r, :c, ch] = img[r, :c, ch]
-                output[r, c, ch] = p
-                output[r, c+1:, ch] = img[r, c:, ch]
+                p = (img[row, col-1, ch] + img[row, col, ch]) / 2
+                output[row, :col, ch] = img[row, :col, ch]
+                output[row, col, ch] = p
+                output[row, col+1:, ch] = img[row, col:, ch]
 
     return output
 
 
-def insert_seams(img, num_insert, rot=False):
-    seam_idxs_record = []
-    temp_img = img.copy()
-
+def insert_seams(img, num_insert):
+    temp_img = img.copy()  # create replicating image from the input image
+    seams_record = []
     for _ in range(num_insert):
-        seam_idx, bool_mask = get_minimum_seam(temp_img)
-
-        seam_idxs_record.append(seam_idx)
+        seam, bool_mask = get_minimum_seam(temp_img)
+        seams_record.append(seam)
         temp_img = remove_seam(temp_img, bool_mask)
 
-    seam_idxs_record.reverse()
+    seams_record.reverse()
 
     for _ in range(num_insert):
-        seam_idx = seam_idxs_record.pop()
-        img = insert_seam(img, seam_idx)
+        seam = seams_record.pop()
+        img = insert_seam(img, seam)
 
-        for remain_seam in seam_idxs_record:
-            remain_seam[np.where(remain_seam >= seam_idx)] += 2
+        # update remaining seam indices
+        for remain_seam in seams_record:
+            remain_seam[np.where(remain_seam >= seam)] += 2
 
     return img
 
 
 def seam_carving(img, dx, dy):
-    # img = img.astype(np.float64)
-    # h, w = img.shape[:2]
-    # assert h + dy > 0 and w + dx > 0 and dy <= h and dx <= w
+    img = img.astype(np.float64)
+    h, w = img.shape[:2]
 
-    # output = img
+    assert (h + dy > 0 and w + dx > 0 and dy <= h and dx <= w)
 
-    # if dx < 0:
-    #     output = remove_seams(output, -dx)
+    output = img
 
-    # elif dx > 0:
-    #     output = insert_seams(output, dx)
+    if dx < 0:
+        output = remove_seams(output, -dx)
 
-    # if dy < 0:
-    #     output = rotate_image(output, True)
-    #     output = remove_seams(output, -dy, rot=True)
-    #     output = rotate_image(output, False)
+    elif dx > 0:
+        output = insert_seams(output, dx)
 
-    # elif dy > 0:
-    #     output = rotate_image(output, True)
-    #     output = insert_seams(output, dy, rot=True)
-    #     output = rotate_image(output, False)
+    if dy < 0:
+        output = rotate_image(output, True)
+        output = remove_seams(output, -dy, rot=True)
+        output = rotate_image(output, False)
 
-    # return output
-    pass
+    elif dy > 0:
+        output = rotate_image(output, True)
+        output = insert_seams(output, dy, rot=True)
+        output = rotate_image(output, False)
+
+    return output
 
 
 if __name__ == '__main__':
