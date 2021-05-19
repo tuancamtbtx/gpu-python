@@ -42,7 +42,7 @@ def test_get_minimum_seam():
 	img = cv2.imread(INPUT)
 	img = img.astype(np.float64)
 	seam_idx, bool_mask = sc.get_minimum_seam(img)
-	print(seam_idx)
+	# print(seam_idx)
 	print(f"Completed Execution in {time.perf_counter() - start} seconds")
 
 def test_remove_by_column(num_seams=10, show_img=False):
@@ -123,12 +123,31 @@ def test_insert_by_row(num_seams=10, show_img=False):
 	print(f"Completed Execution in {time.perf_counter() - start} seconds")
 
 
+def bench_mark_cpu():
+	print("START BENCHMARK CPU")
+	start = time.perf_counter()
+	test_calc_energy()
+	test_get_minimum_seam()
+	print("\n")
+	num_seams_lst = [50, 100, 200, 500, 900]
+	for num_seams in num_seams_lst:
+		print("Number of seams: " + str(num_seams))
+		test_remove_by_column(num_seams)
+		test_remove_by_row(num_seams)
+		test_insert_by_column(num_seams)
+		test_insert_by_row(num_seams)
+		print()
+	print(f"Total benchmark time in {time.perf_counter() - start} seconds")
+
+
 if __name__ == '__main__':
 	# test_calc_energy()
 	# test_forward_energy()
 	# test_get_minimum_seam()
-	test_remove_by_column(num_seams=900)
+	# test_remove_by_column(num_seams=900)
 	# test_remove_by_row(num_seams=900)
 	# test_insert_by_column(num_seams=500)
 	# test_insert_by_row(num_seams=500)
+
+	bench_mark_cpu()
 	
