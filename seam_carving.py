@@ -27,6 +27,7 @@ def rgb2gray(img):
     return gray_img
 
 
+@njit
 def rotate_image(img, clockwise):
     k = 1 if clockwise else 3
     return np.rot90(img, k)
@@ -62,13 +63,6 @@ def calc_energy(img):
             energy_map[y, x] = np.absolute(gx) + np.absolute(gy)
 
     return energy_map
-
-
-@njit
-def nb_transpose(x):
-    y = x.T
-    return y
-
 
 @njit
 def forward_energy(img):
@@ -113,7 +107,7 @@ def forward_energy(img):
         mULR += cULR
 
         # implement np argmin for numba
-        argmins = np.empty(mULR.shape[1], dtype=np.int64)
+        argmins = np.empty(mULR.shape[1], dtype=np.int8)
         for j in range(mULR.shape[1]):
             min_val =  mULR[0][j]
             min_idx = 0
@@ -138,7 +132,7 @@ def get_minimum_seam(img):
     h, w = img.shape[:2]
 
     # matrix to store minimum energy value seen upon pixel
-    M = calc_energy(img)
+    M = forward_energy(img)
     backtrack = np.zeros_like(M, dtype=np.uint16)
     for r in range(1, h):
         for c in range(0, w):
@@ -179,7 +173,6 @@ def get_minimum_seam(img):
 @njit
 def remove_seam(img, bool_mask):
     height, width, chanel = img.shape
-    mask3ch = np.empty((height, width, chanel), dtype=np.bool8)
 
     output = np.empty((height, width-1, chanel), dtype=np.float64)
     for row in range(height):
@@ -214,13 +207,11 @@ def insert_seam(img, seam_idx):
         col = seam_idx[row]
         for ch in range(chanel):
             if col == 0:
-                # p = np.average(img[row, col:col+2, ch])
                 p = (img[row, col, ch] + img[row, col+1, ch]) / 2
                 output[row, col, ch] = img[row, col, ch]
                 output[row, col+1, ch] = p
                 output[row, col+1:, ch] = img[row, col:, ch]
             else:
-                # p = np.average(img[row, col - 1: col + 1, ch])
                 p = (img[row, col-1, ch] + img[row, col, ch]) / 2
                 output[row, :col, ch] = img[row, :col, ch]
                 output[row, col, ch] = p
@@ -233,15 +224,15 @@ def insert_seams(img, num_insert):
     temp_img = img.copy()  # create replicating image from the input image
     seams_record = []
     for _ in range(num_insert):
-        seam_idx, bool_mask = get_minimum_seam(temp_img)
-        seams_record.append(seam_idx)
+        seam, bool_mask = get_minimum_seam(temp_img)
+        seams_record.append(seam)
         temp_img = remove_seam(temp_img, bool_mask)
 
     seams_record.reverse()
 
     for _ in range(num_insert):
         seam = seams_record.pop()
-        img = insert_seam(img, seam_idx)
+        img = insert_seam(img, seam)
 
         # update remaining seam indices
         for remain_seam in seams_record:

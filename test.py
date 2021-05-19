@@ -95,9 +95,9 @@ def test_insert_by_column(num_seams=10, show_img=False):
 	output = sc.insert_seams(img, num_seams)
 	print('output image shape: ' + str(output.shape))
 
-	cv2.imwrite('images/output_insert' +str(num_seams) + 'seams.jpg', output)
+	cv2.imwrite('images/output_insert' +str(num_seams) + 'seams_by_column.jpg', output)
 	if show_img:
-		image = Image.open('images/output_insert' +str(num_seams) + 'seams.jpg')
+		image = Image.open('images/output_insert' +str(num_seams) + 'seams_by_column.jpg')
 		image.show()
 	print(f"Completed Execution in {time.perf_counter() - start} seconds")
 
@@ -124,11 +124,11 @@ def test_insert_by_row(num_seams=10, show_img=False):
 
 
 if __name__ == '__main__':
-	test_calc_energy()
-	test_forward_energy()
+	# test_calc_energy()
+	# test_forward_energy()
 	# test_get_minimum_seam()
-	# test_remove_by_column(num_seams=50)
-	# test_remove_by_row(num_seams=50)
-	# test_insert_by_column(num_seams=10)
-	# test_insert_by_row(num_seams=10)
+	# test_remove_by_column(num_seams=100)
+	# test_remove_by_row(num_seams=100)
+	test_insert_by_column(num_seams=500)
+	# test_insert_by_row(num_seams=500)
 	
