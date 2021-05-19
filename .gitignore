@@ -1,5 +1,5 @@
 .git
 /build
 /dist
+__pycache__
 /.vscode
-/__pycache__
