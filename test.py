@@ -15,9 +15,23 @@ def test_calc_energy(show_img=False):
 
 	output = sc.calc_energy(img)
 
-	cv2.imwrite('images/energy_ouput.jpg', output)
+	cv2.imwrite('images/ouput_energy.jpg', output)
 	if show_img:
-		image = Image.open('images/energy_ouput.jpg')
+		image = Image.open('images/ouput_energy.jpg')
+		image.show()
+	print(f"Completed Execution in {time.perf_counter() - start} seconds")
+
+def test_forward_energy(show_img=False):
+	print("TEST CALCULATE FORWARD ENERGY")
+
+	start = time.perf_counter()
+	img = cv2.imread(INPUT)
+
+	output = sc.forward_energy(img)
+
+	cv2.imwrite('images/ouput_forward_energy.jpg', output)
+	if show_img:
+		image = Image.open('images/ouput_forward_energy.jpg')
 		image.show()
 	print(f"Completed Execution in {time.perf_counter() - start} seconds")
 
@@ -111,9 +125,10 @@ def test_insert_by_row(num_seams=10, show_img=False):
 
 if __name__ == '__main__':
 	test_calc_energy()
-	test_get_minimum_seam()
-	test_remove_by_column(num_seams=10)
-	test_remove_by_row(num_seams=10)
-	test_insert_by_column(num_seams=10)
-	test_insert_by_row(num_seams=10)
+	test_forward_energy()
+	# test_get_minimum_seam()
+	# test_remove_by_column(num_seams=50)
+	# test_remove_by_row(num_seams=50)
+	# test_insert_by_column(num_seams=10)
+	# test_insert_by_row(num_seams=10)
 	
