@@ -55,20 +55,6 @@
   + image_in: ảnh gốc được đưa vào
   + image_out: ảnh sau khi sử dụng seam carving
 
-
-#### 3. Tìm Seam có chi phí nhỏ nhất
-- Quay lui từ hàng cuối cùng của ma trận lên hàng thứ 0 để tìm seam có chi phí nhỏ nhất
-![](/readmeimages/algo3.png)
-
-#### 4. Xóa Seam nhỏ nhất tìm được ở bước 3 
-- Khởi tạo 1 ma trận boolean có kích thước tương tự ma trận energy toàn bộ phần tử có giá trị True làm mask
-#### 5. Lặp lại các bước từ 1 tới 4 cho đến khi đủ số lượng seams cần xóa
-
-### Thuật toán chèn thêm seams
-- Tương tự như thuật toán xóa seams nhưng ngược lại thay vì xóa seams nhỏ nhất ta sẽ nhân bản chúng.
-  - Đầu tiên ta thực hiện xóa n seams trên 1 images duplicate từ image gốc và ghi lại theo đúng thứ tự tọa độ các seams bị xóa. Sau đó chèn các seams vào ảnh gốc theo thứ tự chúng được xóa
-
-
 ## Quy trình tối ưu hóa
 ### Bảng đo thời gian
 
