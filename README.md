@@ -70,7 +70,6 @@
 
 
 ## Quy trình tối ưu hóa
->>>>>>> 74f2b88ff1a1240338834fa0c686ba045f77651d
 ### Bảng đo thời gian
 
 ## Quy trình tối ưu với GPU (dự kiến)
