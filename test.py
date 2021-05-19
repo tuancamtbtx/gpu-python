@@ -127,8 +127,8 @@ if __name__ == '__main__':
 	# test_calc_energy()
 	# test_forward_energy()
 	# test_get_minimum_seam()
-	# test_remove_by_column(num_seams=100)
-	# test_remove_by_row(num_seams=100)
-	test_insert_by_column(num_seams=500)
+	test_remove_by_column(num_seams=900)
+	# test_remove_by_row(num_seams=900)
+	# test_insert_by_column(num_seams=500)
 	# test_insert_by_row(num_seams=500)
 	

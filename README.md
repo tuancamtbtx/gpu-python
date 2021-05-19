@@ -66,3 +66,5 @@
 ## Tham khảo
 - https://github.com/kalpeshdusane/Seam-Carving-B.E.-Project
 - Slides đồ án môn Lập trình song song
+- https://avikdas.com/2019/07/29/improved-seam-carving-with-forward-energy.html
+- https://andrewdcampbell.github.io/seam-carving

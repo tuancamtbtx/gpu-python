@@ -27,7 +27,6 @@ def rgb2gray(img):
     return gray_img
 
 
-@njit
 def rotate_image(img, clockwise):
     k = 1 if clockwise else 3
     return np.rot90(img, k)
@@ -132,7 +131,7 @@ def get_minimum_seam(img):
     h, w = img.shape[:2]
 
     # matrix to store minimum energy value seen upon pixel
-    M = forward_energy(img)
+    M = calc_energy(img)
     backtrack = np.zeros_like(M, dtype=np.uint16)
     for r in range(1, h):
         for c in range(0, w):
