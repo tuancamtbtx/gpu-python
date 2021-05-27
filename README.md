@@ -41,6 +41,8 @@
   - Hoàn thành cài đặt tuần tự: Cả nhóm
   - Chuẩn bị nội dung báo cáo hàng tuần: Tuấn, Hiếu
 - Tuần 05:
+  - Cài đặt baseline song song:
+    - Thành viên tham gia: Cả nhóm
 - Tuần 06:
 - Tuần 07:
 - Tuần 08:
