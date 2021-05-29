@@ -34,14 +34,18 @@
   - Họp nhóm và phân chia công việc song song hóa
     - Thành viên: Cả nhóm
     - Thời gian: 09/05
-  - Cài đặt baseline song song:
-    - Thành viên tham gia: Cả nhóm
 - Tuần 04:
   - Viết lại notebook: Cả nhóm 
   - Hoàn thành cài đặt tuần tự: Cả nhóm
   - Chuẩn bị nội dung báo cáo hàng tuần: Tuấn, Hiếu
 - Tuần 05:
 - Tuần 06:
+  - Song song hóa bước chuyển đổi ảnh màu thành ảnh xám.
+    - Thành viên: Tuấn
+  - Song song hóa bước tìm biên cạnh cho ảnh xám. (sobel)
+    - Thành viên: Tuấn
+  - Song song hóa bước xây dựng bảng độ quan trọng.
+    - Thành viên: Hiếu
 - Tuần 07:
 - Tuần 08:
 
@@ -54,9 +58,6 @@
   + dy: số pixels cần thay đổi theo chiều dọc của ảnh
   + image_in: ảnh gốc được đưa vào
   + image_out: ảnh sau khi sử dụng seam carving
-
-## Quy trình tối ưu hóa
-### Bảng đo thời gian
 
 ## Quy trình tối ưu với GPU (dự kiến)
 - Tính Energy map bằng kernel function
