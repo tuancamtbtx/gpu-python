@@ -41,7 +41,7 @@
 - Tuần 05:
 - Tuần 06:
   - Song song hóa bước chuyển đổi ảnh màu thành ảnh xám.
-    - Thành viên: Tuấn
+    - Thành viên: Tú
   - Song song hóa bước tìm biên cạnh cho ảnh xám. (sobel)
     - Thành viên: Tuấn
   - Song song hóa bước xây dựng bảng độ quan trọng.
@@ -58,12 +58,6 @@
   + dy: số pixels cần thay đổi theo chiều dọc của ảnh
   + image_in: ảnh gốc được đưa vào
   + image_out: ảnh sau khi sử dụng seam carving
-
-## Quy trình tối ưu với GPU (dự kiến)
-- Tính Energy map bằng kernel function
-- Tính Minimum Cost Table bằng kernel function
-- Xác định seam cần xóa bằng kernel function
-- Sử dụng shared memory
 
 ## Tham khảo
 - https://github.com/kalpeshdusane/Seam-Carving-B.E.-Project
