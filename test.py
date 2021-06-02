@@ -129,7 +129,7 @@ def bench_mark_cpu():
 	test_calc_energy()
 	test_get_minimum_seam()
 	print("\n")
-	num_seams_lst = [50, 100, 200, 500, 900]
+	num_seams_lst = [50, 100, 200, 300, 500, 900]
 	for num_seams in num_seams_lst:
 		print("Number of seams: " + str(num_seams))
 		test_remove_by_column(num_seams)
@@ -139,15 +139,47 @@ def bench_mark_cpu():
 		print()
 	print(f"Total benchmark time in {time.perf_counter() - start} seconds")
 
+def test_time_cpu():
+	img = cv2.imread(INPUT)
+	
+	print('input image shape: ' + str(img.shape))
+
+	print("rgb2gray time")
+	start_rgb2grayscale = time.perf_counter()
+	gray_img = sc.rgb2gray(img)
+	print(f"Completed convert rgb2gray in {time.perf_counter() - start_rgb2grayscale} seconds")
+
+	print("forward_energy time")
+	start_forward_energy = time.perf_counter()
+	energy_map = sc.forward_energy(img)
+	print(f"Completed forward_energy in {time.perf_counter() - start_forward_energy} seconds")
+
+	print("get_minimum_seam time")
+	start_get_seam = time.perf_counter()
+	seam_idx, bool_mask = sc.get_minimum_seam(img)
+	print(f"Completed get_minimum_seam in {time.perf_counter() - start_get_seam} seconds")
+
+	img2 = img.copy()
+	print("remove_seam time")
+	start_remove_seam = time.perf_counter()
+	output = sc.remove_seams(img, 1)
+	print(f"Completed remove_seam in {time.perf_counter() - start_remove_seam} seconds")
+
+	print("insert_seam time")
+	start_insert_seam = time.perf_counter()
+	output2 = sc.insert_seams(img2, 1)
+	print(f"Completed insert_seam in {time.perf_counter() - start_insert_seam} seconds")
+
 
 if __name__ == '__main__':
 	# test_calc_energy()
-	# test_forward_energy()
+	test_forward_energy()
 	# test_get_minimum_seam()
-	# test_remove_by_column(num_seams=900)
-	# test_remove_by_row(num_seams=900)
+	#test_remove_by_column(num_seams=900)
+	# test_remove_by_row(num_seams=200)
 	# test_insert_by_column(num_seams=500)
 	# test_insert_by_row(num_seams=500)
 
 	bench_mark_cpu()
 	
+	test_time_cpu()

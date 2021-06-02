@@ -16,7 +16,7 @@ warnings.simplefilter('ignore', category=NumbaWarning)
 
 @njit
 def rgb2gray(img):
-    img = img.astype(np.uint8)
+    img = img.astype(np.float64)
     h, w = img.shape[:2]
     gray_img = np.zeros((h, w), dtype=np.float64)
     for i in range(h):
@@ -65,7 +65,7 @@ def calc_energy(img):
 
 @njit
 def forward_energy(img):
-    height, width = img.shape[:2]
+    height, width, _ = img.shape
 
     img = rgb2gray(img)
 
@@ -74,15 +74,24 @@ def forward_energy(img):
 
     U = np.empty(img.shape, dtype=np.float64)
     for row in range(height):
-        row_array = img[row, :]
-        U[row] = np.roll(row_array, 1)
+        if row == height - 1:
+            U[0] = img[row]
+            break
+        U[row + 1] = img[row]
 
     L = np.empty(img.shape, dtype=np.float64)
+    for col in range(width):
+        if col == width - 1:
+            L[:, 0] = img[:, col]
+            break
+        L[:, col + 1] = img[:, col]
+
     R = np.empty(img.shape, dtype=np.float64)
     for col in range(width):
-        col_array = img[:, col]
-        L[:,col] = np.roll(col_array, 1)
-        R[:,col] = np.roll(col_array, -1)
+        if col == width-1:
+            R[:, col] = img[:, 0]
+            break
+        R[:,col - 1] = img[:, col]
 
     cU = np.abs(R - L)
     cL = np.abs(U - L) + cU
@@ -125,13 +134,12 @@ def forward_energy(img):
 
     return energy
 
-
-@njit
+@jit
 def get_minimum_seam(img):
     h, w = img.shape[:2]
 
     # matrix to store minimum energy value seen upon pixel
-    M = calc_energy(img)
+    M = forward_energy(img)
     backtrack = np.zeros_like(M, dtype=np.uint16)
     for r in range(1, h):
         for c in range(0, w):
