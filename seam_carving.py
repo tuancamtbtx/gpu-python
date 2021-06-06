@@ -35,7 +35,7 @@ warnings.simplefilter('ignore', category=NumbaWarning)
 
 @cuda.jit
 def rgb2gray(rgb_img, gray_img):
-    i, j =  cuda.grid(2)
+    i, j = cuda.grid(2)
 
     if i < rgb_img.shape[0] and j < rgb_img.shape[1]:
         gray_img[i,j] = 0.2989*rgb_img[i,j,0] + 0.5870*rgb_img[i,j,1] + 0.1140*rgb_img[i,j,2]
@@ -49,6 +49,7 @@ def rotate_image(img, clockwise):
 @njit
 def calc_energy(img):
     # convert rgb to grayscale
+    
     grayscale = rgb2gray(img)
 
     filter_dx = np.array([
@@ -79,9 +80,8 @@ def calc_energy(img):
 
 @njit
 def forward_energy(img):
-    height, width, _ = img.shape
-
-    img = rgb2gray(img)
+    height, width = img.shape[:2]
+    # img = rgb2gray(img)
 
     energy = np.zeros((height, width))  # energy table
     m = np.zeros((height, width))
@@ -151,7 +151,6 @@ def forward_energy(img):
 @jit
 def get_minimum_seam(img):
     h, w = img.shape[:2]
-
     # matrix to store minimum energy value seen upon pixel
     M = forward_energy(img)
     backtrack = np.zeros_like(M, dtype=np.uint16)
@@ -191,31 +190,73 @@ def get_minimum_seam(img):
     return np.array(seam_idx), bool_mask
 
 
-@njit
-def remove_seam(img, bool_mask):
-    height, width, chanel = img.shape
+# @njit
+# def remove_seam(img, bool_mask):
+#     height, width, chanel = img.shape
 
-    output = np.empty((height, width-1, chanel), dtype=np.float64)
-    for row in range(height):
-        output_col = 0
-        for col in range(width):
-            if bool_mask[row][col]:
-                for ch in range(chanel):
-                    output[row][output_col][ch] = img[row][col][ch]
-                output_col += 1
-            else:
-                continue
+#     output = np.empty((height, width-1, chanel), dtype=np.float64)
+#     for row in range(height):
+#         output_col = 0
+#         for col in range(width):
+#             if bool_mask[row][col]:
+#                 for ch in range(chanel):
+#                     output[row][output_col][ch] = img[row][col][ch]
+#                 output_col += 1
+#             else:
+#                 continue
 
-    return output
+#     return output
+
+@cuda.jit
+def remove_seam(img, bool_mask, out_img):
+    i, j = cuda.grid(2)
+    column = j
+    if i < img.shape[0] and j < img.shape[1]:
+        if bool_mask[i][j]:
+            for ch in range(img.shape[2]):
+                out_img[i][column][ch] = img[i][j][ch]
+            column = column + 1
+
+    return
 
 
-@jit
+# @jit
 def remove_seams(img, num_remove, rot=False):
-    for _ in range(num_remove):
-        _, bool_mask = get_minimum_seam(img)
-        img = remove_seam(img, bool_mask)
+    in_img = img.copy()
 
-    return img
+    for _ in range(num_remove):
+
+        ### convert rgb to grayscale
+        #Run kernel
+        griddim = 200, 230
+        blockdim = 16, 16
+
+        # Send to GPU
+        d_img = cuda.to_device(in_img)
+        d_gray_out = cuda.device_array(in_img.shape[0:2])
+
+        rgb2gray[griddim, blockdim](d_img, d_gray_out)
+
+        gray_img = np.asarray(d_gray_out)
+
+        ### get minimum seam
+        _, bool_mask = get_minimum_seam(gray_img)
+
+        ### remove seam
+        #Run kernel
+        griddim = 200, 230
+        blockdim = 16, 16
+
+        # Send to GPU
+        d_bool_mask = cuda.to_device(bool_mask)
+        d_out = cuda.device_array((in_img.shape[0], in_img.shape[1] - 1, in_img.shape[2]))
+
+        remove_seam[griddim, blockdim](d_img, d_bool_mask, d_out)
+
+        in_img = np.asarray(d_out).astype(np.uint8)
+
+    print(in_img.shape)
+    return in_img
 
 
 @njit
@@ -332,6 +373,14 @@ if __name__ == '__main__':
         # out_img.save(OUT_IMG)
         # test command python seam_carving.py -mode=gpu -in=images/input.jpg -out=images/input_grayscal.jpg
         # or python test.py
+
+        # TODO: resize input images base on dx and dy seam number
+        dx, dy = args["dx"], args["dy"]
+        assert dx is not None and dy is not None
+        output = seam_carving(img, dx, dy)
+        pil_image = PIL.Image.fromarray(output)
+        pil_image.show()
+        cv2.imwrite(OUT_IMG, output)
         pass
 
     elif args["mode"] == "cpu":
