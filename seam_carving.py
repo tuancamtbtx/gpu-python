@@ -1,7 +1,10 @@
-from PIL import Image
+import PIL.Image
+from io import BytesIO
+import IPython.display
+
 import cv2
 import numpy as np
-from numba import jit, njit
+from numba import jit, njit, cuda
 
 import argparse
 
@@ -14,18 +17,29 @@ warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 warnings.simplefilter('ignore', category=NumbaWarning)
 
 
-@njit
-def rgb2gray(img):
-    img = img.astype(np.float64)
-    h, w = img.shape[:2]
-    gray_img = np.zeros((h, w), dtype=np.float64)
-    for i in range(h):
-        for j in range(w):
-            gray_img[i][j] = img[i][j][0]*0.2989 + \
-                img[i][j][1]*0.5870 + img[i][j][2]*0.1140
 
-    return gray_img
 
+# @njit
+# def rgb2gray(img):
+#     img = img.astype(np.float64)
+#     h, w = img.shape[:2]
+#     gray_img = np.zeros((h, w), dtype=np.float64)
+#     for i in range(h):
+#         for j in range(w):
+#             gray_img[i][j] = img[i][j][0]*0.2989 + \
+#                 img[i][j][1]*0.5870 + img[i][j][2]*0.1140
+
+#     return gray_img
+
+
+
+@cuda.jit
+def rgb2gray(rgb_img, gray_img):
+    i, j =  cuda.grid(2)
+
+    if i < rgb_img.shape[0] and j < rgb_img.shape[1]:
+        gray_img[i,j] = 0.2989*rgb_img[i,j,0] + 0.5870*rgb_img[i,j,1] + 0.1140*rgb_img[i,j,2]
+    return
 
 def rotate_image(img, clockwise):
     k = 1 if clockwise else 3
@@ -102,12 +116,12 @@ def forward_energy(img):
         mL = np.roll(mU, 1)
         mR = np.roll(mU, -1)
 
-        mULR = np.empty((3, width), dtype=np.float64) 
+        mULR = np.empty((3, width), dtype=np.float64)
         mULR[0] = mU
         mULR[1] = mL
         mULR[2] = mR
 
-        cULR = np.empty((3, width), dtype=np.float64) 
+        cULR = np.empty((3, width), dtype=np.float64)
         cULR[0] = cU[i]
         cULR[1] = cL[i]
         cULR[2] = cR[i]
@@ -124,11 +138,11 @@ def forward_energy(img):
                     min_val = mULR[k][j]
                     min_idx = k
 
-            argmins[j] = min_idx 
+            argmins[j] = min_idx
 
         for idx in range(len(argmins)):
             m[i][idx] = mULR[argmins[idx]][idx]
-            
+
         for idx in range(len(argmins)):
             energy[i][idx] = cULR[argmins[idx]][idx]
 
@@ -295,11 +309,29 @@ if __name__ == '__main__':
 
     img = cv2.imread(IN_IMG)
     assert img is not None
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     print(img.shape)
 
     if args["mode"] == "gpu":
-        # TODO: later
+        # TODO: resize input images base on dx and dy seam number
+        # dx, dy = args["dx"], args["dy"]
+        # assert dx is not None and dy is not None
+
+        # #Run kernel
+        # griddim = 200, 230
+        # blockdim = 16, 16
+
+        # # Send to GPU
+        # d_img = cuda.to_device(img)
+        # d_out = cuda.device_array(img.shape[0:2])
+
+        # rgb2gray[griddim, blockdim](d_img, d_out)
+
+        # out_img =  PIL.Image.fromarray(np.asarray(d_out).astype(np.uint8), 'L')
+        # out_img.save(OUT_IMG)
+        # test command python seam_carving.py -mode=gpu -in=images/input.jpg -out=images/input_grayscal.jpg
+        # or python test.py
         pass
 
     elif args["mode"] == "cpu":
