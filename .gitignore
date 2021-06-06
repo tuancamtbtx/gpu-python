@@ -1,6 +1,6 @@
 .git
 /build
 /dist
-# __pycache__
-# .ipynb_checkpoints
+__pycache__
+.ipynb_checkpoints
 /.vscode
