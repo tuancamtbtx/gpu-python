@@ -2,6 +2,7 @@ import seam_carving as sc
 import cv2
 import numpy as np
 from PIL import Image
+from numba import cuda
 import time
 
 INPUT = 'images/input.jpg'
@@ -171,15 +172,42 @@ def test_time_cpu():
 	print(f"Completed insert_seam in {time.perf_counter() - start_insert_seam} seconds")
 
 
+def test_cuda_convert_rgb_to_grayscale():
+	img = cv2.imread(INPUT)
+	assert img is not None
+
+	print("cuda rgb2gray time")
+	start_rgb2grayscale = time.perf_counter()
+
+	img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+	#Run kernel
+	griddim = 200, 230
+	blockdim = 16, 16
+
+	# Send to GPU
+	d_img = cuda.to_device(img)
+	d_out = cuda.device_array(img.shape[0:2])
+
+	sc.rgb2gray[griddim, blockdim](d_img, d_out)
+
+	# out_img =  Image.fromarray(np.asarray(d_out).astype(np.uint8), 'L')
+	# out_img.save(OUT_IMG)
+	print(f"Completed convert cuda rgb2gray in {time.perf_counter() - start_rgb2grayscale} seconds")
+
+
+
 if __name__ == '__main__':
 	# test_calc_energy()
-	test_forward_energy()
+	# test_forward_energy()
 	# test_get_minimum_seam()
 	#test_remove_by_column(num_seams=900)
 	# test_remove_by_row(num_seams=200)
 	# test_insert_by_column(num_seams=500)
 	# test_insert_by_row(num_seams=500)
 
-	bench_mark_cpu()
+	# bench_mark_cpu()
 	
-	test_time_cpu()
+	# test_time_cpu()
+
+	test_cuda_convert_rgb_to_grayscale()
