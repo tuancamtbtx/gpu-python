@@ -44,11 +44,19 @@
 - Tuần 06:
   - Song song hóa bước chuyển đổi ảnh màu thành ảnh xám.
     - Thành viên: Tú
-  - Song song hóa bước tìm biên cạnh cho ảnh xám. (sobel)
+  - Song song hóa bước tìm biên cạnh cho ảnh xám.
     - Thành viên: Tuấn
-  - Song song hóa bước xây dựng bảng độ quan trọng.
+  - Cài đặt song song hóa hàm feed forward.
     - Thành viên: Hiếu
 - Tuần 07:
+  - Bổ sung báo cáo: thêm đánh giá (ảnh) giữa orginal paper và kết quả cài đặt của nhóm cho feedforward,...
+    - Thành viên: Tuấn
+  - Cài đặt song song hóa hàm feed forward
+    - Thành viên: Hiếu
+  - Chuẩn bị nội dung báo cáo hàng tuần
+    - Thành viên: Hiếu
+  - Cài đặt song song hóa bước xóa seam, chèn seam:
+    - Thành viên: Tú
 - Tuần 08:
 
 ## Cách tổ chức:
