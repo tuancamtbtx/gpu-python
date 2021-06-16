@@ -146,7 +146,7 @@ def get_minimum_seam(img):
 def find_seams_index_by_rows(bool_mask, bool_mask_index):
     i, j = cuda.grid(2)
     if i < bool_mask.shape[0] and j < bool_mask.shape[1]:
-        if bool_mask[i][j]:
+        if not bool_mask[i][j]:
             bool_mask_index[i] = j
             # bool_mask_index[i] = bool_mask.shape[1]
 
@@ -163,7 +163,6 @@ def remove_seam_kernel(img, bool_mask, out_img, bool_mask_index):
                 out_img[i][j][ch] = img[i][j + 1][ch]
             else:
                 out_img[i][j][ch] = img[i][j][ch]
-
     return
 
 def remove_seams_kernel(img, num_remove, rot=False):
@@ -190,7 +189,9 @@ def remove_seams_kernel(img, num_remove, rot=False):
         # Send to GPU
         d_bool_mask = cuda.to_device(bool_mask)
         d_bool_mask_index = cuda.device_array((in_img.shape[0], 1))
-        d_out = cuda.device_array((in_img.shape[0], in_img.shape[1] - 1, in_img.shape[2]))
+        # d_out = cuda.device_array((in_img.shape[0], in_img.shape[1] - 1, in_img.shape[2]))
+        d_out = cuda.device_array((in_img.shape[0], in_img.shape[1], in_img.shape[2]))
+
         find_seams_index_by_rows[griddim, blockdim](d_bool_mask, d_bool_mask_index)
 
         remove_seam_kernel[griddim, blockdim](d_img, d_bool_mask, d_out, d_bool_mask_index)

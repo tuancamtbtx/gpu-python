@@ -302,7 +302,6 @@ if __name__ == '__main__':
 
     img = cv2.imread(IN_IMG)
     assert img is not None
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     print(img.shape)
 
@@ -310,6 +309,9 @@ if __name__ == '__main__':
         # TODO: resize input images base on dx and dy seam number
         dx, dy = args["dx"], args["dy"]
         assert dx is not None and dy is not None
+
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
         output = seam_carving_kernel(img, dx, dy)
 
         output = cv2.cvtColor(output, cv2.COLOR_RGB2BGR)
