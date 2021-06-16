@@ -46,7 +46,7 @@
     - Thành viên: Tú
   - Song song hóa bước tìm biên cạnh cho ảnh xám.
     - Thành viên: Tuấn
-  - Cài đặt song song hóa hàm feed forward.
+  - Cài đặt song song hóa hàm forward energy.
     - Thành viên: Hiếu
 - Tuần 07:
   - Bổ sung báo cáo: thêm đánh giá (ảnh) giữa orginal paper và kết quả cài đặt của nhóm cho forward energy,...
