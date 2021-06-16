@@ -79,73 +79,34 @@ def calc_energy(img):
 
 @njit
 def forward_energy(img):
-    height, width, _ = img.shape
+    height, width = img.shape[:2]
 
-    img = rgb2gray(img)
-
-    energy = np.zeros((height, width))  # energy table
+    gray_img = rgb2gray(img)
+    energy = np.zeros((height, width))
     m = np.zeros((height, width))
 
-    U = np.empty(img.shape, dtype=np.float64)
-    for row in range(height):
-        if row == height - 1:
-            U[0] = img[row]
-            break
-        U[row + 1] = img[row]
+    for r in range(1, height):
+        for c in range(width):
+            up = (r-1) % height
+            left = (c-1) % width
+            right = (c+1) % width
 
-    L = np.empty(img.shape, dtype=np.float64)
-    for col in range(width):
-        if col == width - 1:
-            L[:, 0] = img[:, col]
-            break
-        L[:, col + 1] = img[:, col]
+            mU = m[up, c]
+            mL = m[up, left]
+            mR = m[up, right]
 
-    R = np.empty(img.shape, dtype=np.float64)
-    for col in range(width):
-        if col == width-1:
-            R[:, col] = img[:, 0]
-            break
-        R[:,col - 1] = img[:, col]
+            cU = np.abs(gray_img[r, right] - gray_img[r, left])
+            cL = np.abs(gray_img[up, c] - gray_img[r, left]) + cU
+            cR = np.abs(gray_img[up, c] - gray_img[r, right]) + cU
 
-    cU = np.abs(R - L)
-    cL = np.abs(U - L) + cU
-    cR = np.abs(U - R) + cU
+            cULR = np.array([cU, cL, cR])
+            mULR = np.array([mU, mL, mR]) + cULR
 
-    for i in range(1, height):
-        mU = m[i-1]
-        mL = np.roll(mU, 1)
-        mR = np.roll(mU, -1)
+            argmin = np.argmin(mULR)
 
-        mULR = np.empty((3, width), dtype=np.float64)
-        mULR[0] = mU
-        mULR[1] = mL
-        mULR[2] = mR
-
-        cULR = np.empty((3, width), dtype=np.float64)
-        cULR[0] = cU[i]
-        cULR[1] = cL[i]
-        cULR[2] = cR[i]
-
-        mULR += cULR
-
-        # implement np argmin for numba
-        argmins = np.empty(mULR.shape[1], dtype=np.int8)
-        for j in range(mULR.shape[1]):
-            min_val =  mULR[0][j]
-            min_idx = 0
-            for k in range(1, 3):
-                if min_val > mULR[k][j]:
-                    min_val = mULR[k][j]
-                    min_idx = k
-
-            argmins[j] = min_idx
-
-        for idx in range(len(argmins)):
-            m[i][idx] = mULR[argmins[idx]][idx]
-
-        for idx in range(len(argmins)):
-            energy[i][idx] = cULR[argmins[idx]][idx]
-
+            m[r, c] = mULR[argmin]
+            energy[r, c] = cULR[argmin]
+    
     return energy
 
 @jit
