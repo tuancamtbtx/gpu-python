@@ -276,7 +276,7 @@ def seam_carving(img, dx, dy):
 
     elif dy > 0:
         output = rotate_image(output, True)
-        output = insert_seams(output, dy, rot=True)
+        output = insert_seams(output, dy)
         output = rotate_image(output, False)
 
     return output

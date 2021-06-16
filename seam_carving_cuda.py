@@ -147,10 +147,11 @@ def remove_seam_kernel(img, seam_idxs, out_img):
     i, j = cuda.grid(2)
 
     if i < img.shape[0] and j < img.shape[1]:
-        for ch in range(img.shape[2]):
-            if seam_idxs[i] <= j:
+        if seam_idxs[i] <= j:
+            for ch in range(img.shape[2]):
                 out_img[i][j][ch] = img[i][j + 1][ch]
-            else:
+        else:
+            for ch in range(img.shape[2]):
                 out_img[i][j][ch] = img[i][j][ch]
     return
 
@@ -176,13 +177,8 @@ def remove_seams_kernel(img, num_remove, rot=False):
 
         ### remove seam
         # Send to GPU
-        d_bool_mask = cuda.to_device(bool_mask)
         d_seam_idxs = cuda.to_device(seam_idxs)
-        # d_bool_mask_index = cuda.device_array((in_img.shape[0], 1))
         d_out = cuda.device_array((in_img.shape[0], in_img.shape[1] - 1, in_img.shape[2]))
-        # d_out = cuda.device_array((in_img.shape[0], in_img.shape[1], in_img.shape[2]))
-
-        # find_seams_index_by_rows[griddim, blockdim](d_bool_mask, d_bool_mask_index)
 
         remove_seam_kernel[griddim, blockdim](d_img, d_seam_idxs, d_out)
 
@@ -193,46 +189,77 @@ def remove_seams_kernel(img, num_remove, rot=False):
 
 @cuda.jit
 def insert_seam_kernel(img, seam_idxs, out_img):
-    height, width, chanel = img.shape
-    output = np.zeros((height, width+1, chanel))
     # The inserted pixel values are derived from an
     # average of left and right neighbors.
-    for row in range(height):
-        col = seam_idx[row]
-        for ch in range(chanel):
-            if col == 0:
-                p = (img[row, col, ch] + img[row, col+1, ch]) / 2
-                output[row, col, ch] = img[row, col, ch]
-                output[row, col+1, ch] = p
-                output[row, col+1:, ch] = img[row, col:, ch]
-            else:
-                p = (img[row, col-1, ch] + img[row, col, ch]) / 2
-                output[row, :col, ch] = img[row, :col, ch]
-                output[row, col, ch] = p
-                output[row, col+1:, ch] = img[row, col:, ch]
+    i, j = cuda.grid(2)
 
-    return output
+    if i < img.shape[0] and j < img.shape[1]:
+        if seam_idxs[i] == j:
+            if j == 0:
+                for ch in range(img.shape[2]):
+                    p = (img[i, j, ch] + img[i, j+1, ch]) / 2
+                    out_img[i][j][ch] = p
+                    out_img[i][j + 1][ch] = img[i][j][ch]
+            else:
+                for ch in range(img.shape[2]):
+                    p = (img[i, j - 1, ch] + img[i, j, ch]) / 2
+                    out_img[i][j][ch] = p
+                    out_img[i][j + 1][ch] = img[i][j][ch]
+
+        elif j < seam_idxs[i]:
+            for ch in range(img.shape[2]):
+                out_img[i][j][ch] = img[i][j][ch]
+        else:
+            for ch in range(img.shape[2]):
+                out_img[i][j + 1][ch] = img[i][j][ch]
+
+    return
 
 
 def insert_seams_kernel(img, num_insert):
     temp_img = img.copy()  # create replicating image from the input image
     seams_record = []
+    ### convert rgb to grayscale
+    #Run kernel
+    griddim = 255, 512
+    blockdim = 32, 32
+
     for _ in range(num_insert):
-        seam, bool_mask = get_minimum_seam(temp_img)
-        seams_record.append(seam)
-        temp_img = remove_seams_kernel(temp_img, bool_mask)
+        d_img = cuda.to_device(temp_img)
+        d_gray_out = cuda.device_array(temp_img.shape[0:2])
+
+        rgb2gray_kernel[griddim, blockdim](d_img, d_gray_out)
+
+        gray_img = np.asarray(d_gray_out)
+        seam_idxs , bool_mask = get_minimum_seam(gray_img)
+        seams_record.append(seam_idxs)
+        ### remove seam
+        # Send to GPU
+        d_seam_idxs = cuda.to_device(seam_idxs)
+        d_out = cuda.device_array((temp_img.shape[0], temp_img.shape[1] - 1, temp_img.shape[2]))
+
+        remove_seam_kernel[griddim, blockdim](d_img, d_seam_idxs, d_out)
+        temp_img = np.asarray(d_out).astype(np.uint8)
+
 
     seams_record.reverse()
+    in_img = img.copy()  # create replicating image from the input image
 
     for _ in range(num_insert):
-        seam = seams_record.pop()
-        img = insert_seam_kernel(img, seam)
+        seam_idxs = seams_record.pop()
 
+        d_seam_idxs = cuda.to_device(seam_idxs)
+        d_img = cuda.to_device(in_img)
+        d_out = cuda.device_array((in_img.shape[0], in_img.shape[1] + 1, in_img.shape[2]))
+
+        insert_seam_kernel[griddim, blockdim](d_img, d_seam_idxs, d_out)
+        in_img = np.asarray(d_out).astype(np.uint8)
         # update remaining seam indices
         for remain_seam in seams_record:
-            remain_seam[np.where(remain_seam >= seam)] += 2
+            remain_seam[np.where(remain_seam >= seam_idxs)] += 2
 
-    return img
+    print(in_img.shape)
+    return in_img
 
 def seam_carving_kernel(img, dx, dy):
     img = img.astype(np.float64)
@@ -255,7 +282,7 @@ def seam_carving_kernel(img, dx, dy):
 
     elif dy > 0:
         output = rotate_image(output, True)
-        output = insert_seams_kernel(output, dy, rot=True)
+        output = insert_seams_kernel(output, dy)
         output = rotate_image(output, False)
 
     return output
