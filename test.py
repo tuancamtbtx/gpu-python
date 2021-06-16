@@ -6,6 +6,7 @@ from numba import cuda
 import time
 
 INPUT = 'images/input.jpg'
+# INPUT = 'images/rain_origin.png'
 
 
 def test_calc_energy(show_img=False):
@@ -62,8 +63,6 @@ def test_remove_by_column(num_seams=10, show_img=False):
 		image = Image.open('images/output_remove' +str(num_seams) + 'seams_by_column.jpg')
 		image.show()
 	print(f"Completed Execution in {time.perf_counter() - start} seconds")
-
-
 
 def test_remove_by_row(num_seams=10, show_img=False):
 	print("TEST REMOVE BY ROW")
@@ -130,7 +129,7 @@ def bench_mark_cpu():
 	test_calc_energy()
 	test_get_minimum_seam()
 	print("\n")
-	num_seams_lst = [50, 100, 200, 300, 500, 900]
+	num_seams_lst = [100, 300, 600]
 	for num_seams in num_seams_lst:
 		print("Number of seams: " + str(num_seams))
 		test_remove_by_column(num_seams)
@@ -195,13 +194,11 @@ def test_cuda_convert_rgb_to_grayscale():
 	# out_img.save(OUT_IMG)
 	print(f"Completed convert cuda rgb2gray in {time.perf_counter() - start_rgb2grayscale} seconds")
 
-
-
 if __name__ == '__main__':
-	# test_calc_energy()
-	# test_forward_energy()
+	test_calc_energy()
+	test_forward_energy()
 	# test_get_minimum_seam()
-	#test_remove_by_column(num_seams=900)
+	# test_remove_by_column(num_seams=150)
 	# test_remove_by_row(num_seams=200)
 	# test_insert_by_column(num_seams=500)
 	# test_insert_by_row(num_seams=500)
@@ -210,4 +207,4 @@ if __name__ == '__main__':
 	
 	# test_time_cpu()
 
-	test_cuda_convert_rgb_to_grayscale()
+	# test_cuda_convert_rgb_to_grayscale()

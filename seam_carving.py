@@ -19,27 +19,27 @@ warnings.simplefilter('ignore', category=NumbaWarning)
 
 
 
-# @njit
-# def rgb2gray(img):
-#     img = img.astype(np.float64)
-#     h, w = img.shape[:2]
-#     gray_img = np.zeros((h, w), dtype=np.float64)
-#     for i in range(h):
-#         for j in range(w):
-#             gray_img[i][j] = img[i][j][0]*0.2989 + \
-#                 img[i][j][1]*0.5870 + img[i][j][2]*0.1140
+@njit
+def rgb2gray(img):
+    img = img.astype(np.float64)
+    h, w = img.shape[:2]
+    gray_img = np.zeros((h, w), dtype=np.float64)
+    for i in range(h):
+        for j in range(w):
+            gray_img[i][j] = img[i][j][0]*0.2989 + \
+                img[i][j][1]*0.5870 + img[i][j][2]*0.1140
 
-#     return gray_img
+    return gray_img
 
 
 
-@cuda.jit
-def rgb2gray(rgb_img, gray_img):
-    i, j =  cuda.grid(2)
+# @cuda.jit
+# def rgb2gray(rgb_img, gray_img):
+#     i, j =  cuda.grid(2)
 
-    if i < rgb_img.shape[0] and j < rgb_img.shape[1]:
-        gray_img[i,j] = 0.2989*rgb_img[i,j,0] + 0.5870*rgb_img[i,j,1] + 0.1140*rgb_img[i,j,2]
-    return
+#     if i < rgb_img.shape[0] and j < rgb_img.shape[1]:
+#         gray_img[i,j] = 0.2989*rgb_img[i,j,0] + 0.5870*rgb_img[i,j,1] + 0.1140*rgb_img[i,j,2]
+#     return
 
 def rotate_image(img, clockwise):
     k = 1 if clockwise else 3
