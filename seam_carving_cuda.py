@@ -143,23 +143,12 @@ def get_minimum_seam(img):
     return np.array(seam_idx), bool_mask
 
 @cuda.jit
-def find_seams_index_by_rows(bool_mask, bool_mask_index):
-    i, j = cuda.grid(2)
-    if i < bool_mask.shape[0] and j < bool_mask.shape[1]:
-        if not bool_mask[i][j]:
-            bool_mask_index[i] = j
-            # bool_mask_index[i] = bool_mask.shape[1]
-
-    return
-
-
-@cuda.jit
-def remove_seam_kernel(img, bool_mask, out_img, bool_mask_index):
+def remove_seam_kernel(img, seam_idxs, out_img):
     i, j = cuda.grid(2)
 
     if i < img.shape[0] and j < img.shape[1]:
         for ch in range(img.shape[2]):
-            if bool_mask_index[i][0] <= j:
+            if seam_idxs[i] <= j:
                 out_img[i][j][ch] = img[i][j + 1][ch]
             else:
                 out_img[i][j][ch] = img[i][j][ch]
@@ -183,18 +172,19 @@ def remove_seams_kernel(img, num_remove, rot=False):
         gray_img = np.asarray(d_gray_out)
 
         ### get minimum seam
-        _, bool_mask = get_minimum_seam(gray_img)
+        seam_idxs , bool_mask = get_minimum_seam(gray_img)
 
         ### remove seam
         # Send to GPU
         d_bool_mask = cuda.to_device(bool_mask)
-        d_bool_mask_index = cuda.device_array((in_img.shape[0], 1))
-        # d_out = cuda.device_array((in_img.shape[0], in_img.shape[1] - 1, in_img.shape[2]))
-        d_out = cuda.device_array((in_img.shape[0], in_img.shape[1], in_img.shape[2]))
+        d_seam_idxs = cuda.to_device(seam_idxs)
+        # d_bool_mask_index = cuda.device_array((in_img.shape[0], 1))
+        d_out = cuda.device_array((in_img.shape[0], in_img.shape[1] - 1, in_img.shape[2]))
+        # d_out = cuda.device_array((in_img.shape[0], in_img.shape[1], in_img.shape[2]))
 
-        find_seams_index_by_rows[griddim, blockdim](d_bool_mask, d_bool_mask_index)
+        # find_seams_index_by_rows[griddim, blockdim](d_bool_mask, d_bool_mask_index)
 
-        remove_seam_kernel[griddim, blockdim](d_img, d_bool_mask, d_out, d_bool_mask_index)
+        remove_seam_kernel[griddim, blockdim](d_img, d_seam_idxs, d_out)
 
         in_img = np.asarray(d_out).astype(np.uint8)
 
@@ -202,7 +192,7 @@ def remove_seams_kernel(img, num_remove, rot=False):
     return in_img
 
 @cuda.jit
-def insert_seam_kernel(img, seam_idx):
+def insert_seam_kernel(img, seam_idxs, out_img):
     height, width, chanel = img.shape
     output = np.zeros((height, width+1, chanel))
     # The inserted pixel values are derived from an
