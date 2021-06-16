@@ -154,29 +154,27 @@ def find_seams_index_by_rows(bool_mask, bool_mask_index):
 
 
 @cuda.jit
-def remove_seam_kernel(img, out_img, bool_mask_index):
+def remove_seam_kernel(img, bool_mask, out_img, bool_mask_index):
     i, j = cuda.grid(2)
 
     if i < img.shape[0] and j < img.shape[1]:
         for ch in range(img.shape[2]):
-            if j >= bool_mask_index[i][0]:
+            if bool_mask_index[i][0] <= j:
                 out_img[i][j][ch] = img[i][j + 1][ch]
             else:
                 out_img[i][j][ch] = img[i][j][ch]
 
     return
 
-
 def remove_seams_kernel(img, num_remove, rot=False):
     in_img = img.copy()
 
+    ### convert rgb to grayscale
+    #Run kernel
+    griddim = 200, 230
+    blockdim = 32, 32
+
     for _ in range(num_remove):
-
-        ### convert rgb to grayscale
-        #Run kernel
-        griddim = 200, 230
-        blockdim = 32, 32
-
         # Send to GPU
         d_img = cuda.to_device(in_img)
         d_gray_out = cuda.device_array(in_img.shape[0:2])
@@ -191,12 +189,11 @@ def remove_seams_kernel(img, num_remove, rot=False):
         ### remove seam
         # Send to GPU
         d_bool_mask = cuda.to_device(bool_mask)
-        d_bool_mask_index = cuda.device_array((bool_mask.shape[0], 1))
+        d_bool_mask_index = cuda.device_array((in_img.shape[0], 1))
         d_out = cuda.device_array((in_img.shape[0], in_img.shape[1] - 1, in_img.shape[2]))
-
         find_seams_index_by_rows[griddim, blockdim](d_bool_mask, d_bool_mask_index)
-        # print(np.asarray(d_bool_mask_index).shape)
-        remove_seam_kernel[griddim, blockdim](d_img, d_out, d_bool_mask_index)
+
+        remove_seam_kernel[griddim, blockdim](d_img, d_bool_mask, d_out, d_bool_mask_index)
 
         in_img = np.asarray(d_out).astype(np.uint8)
 
@@ -232,7 +229,7 @@ def insert_seams_kernel(img, num_insert):
     for _ in range(num_insert):
         seam, bool_mask = get_minimum_seam(temp_img)
         seams_record.append(seam)
-        temp_img = remove_seam(temp_img, bool_mask)
+        temp_img = remove_seams_kernel(temp_img, bool_mask)
 
     seams_record.reverse()
 
