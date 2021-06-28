@@ -2,11 +2,9 @@ import seam_carving as sc
 import cv2
 import numpy as np
 from PIL import Image
-from numba import cuda
 import time
 
 INPUT = 'images/input.jpg'
-# INPUT = 'images/rain_origin.png'
 
 
 def test_calc_energy(show_img=False):
@@ -63,6 +61,8 @@ def test_remove_by_column(num_seams=10, show_img=False):
 		image = Image.open('images/output_remove' +str(num_seams) + 'seams_by_column.jpg')
 		image.show()
 	print(f"Completed Execution in {time.perf_counter() - start} seconds")
+
+
 
 def test_remove_by_row(num_seams=10, show_img=False):
 	print("TEST REMOVE BY ROW")
@@ -129,7 +129,7 @@ def bench_mark_cpu():
 	test_calc_energy()
 	test_get_minimum_seam()
 	print("\n")
-	num_seams_lst = [100, 300, 600]
+	num_seams_lst = [50, 100, 200, 300, 500, 900]
 	for num_seams in num_seams_lst:
 		print("Number of seams: " + str(num_seams))
 		test_remove_by_column(num_seams)
@@ -170,35 +170,27 @@ def test_time_cpu():
 	output2 = sc.insert_seams(img2, 1)
 	print(f"Completed insert_seam in {time.perf_counter() - start_insert_seam} seconds")
 
+def test_forward_energy_parallel(show_img=False):
+	print("TEST CALCULATE FORWARD ENERGY PARALLEL")
 
-def test_cuda_convert_rgb_to_grayscale():
+	start = time.perf_counter()
 	img = cv2.imread(INPUT)
-	assert img is not None
 
-	print("cuda rgb2gray time")
-	start_rgb2grayscale = time.perf_counter()
+	output = sc.forward_energy_parallel(img)
 
-	img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+	cv2.imwrite('images/ouput_forward_energy_parallel.jpg', output)
+	if show_img:
+		image = Image.open('images/ouput_forward_energy_parallel.jpg')
+		image.show()
+	print(f"Completed Execution in {time.perf_counter() - start} seconds")
 
-	#Run kernel
-	griddim = 200, 230
-	blockdim = 16, 16
-
-	# Send to GPU
-	d_img = cuda.to_device(img)
-	d_out = cuda.device_array(img.shape[0:2])
-
-	sc.rgb2gray[griddim, blockdim](d_img, d_out)
-
-	# out_img =  Image.fromarray(np.asarray(d_out).astype(np.uint8), 'L')
-	# out_img.save(OUT_IMG)
-	print(f"Completed convert cuda rgb2gray in {time.perf_counter() - start_rgb2grayscale} seconds")
 
 if __name__ == '__main__':
-	test_calc_energy()
-	test_forward_energy()
+	# test_calc_energy()
+	#test_forward_energy()
+	test_forward_energy_parallel()
 	# test_get_minimum_seam()
-	# test_remove_by_column(num_seams=150)
+	#test_remove_by_column(num_seams=900)
 	# test_remove_by_row(num_seams=200)
 	# test_insert_by_column(num_seams=500)
 	# test_insert_by_row(num_seams=500)
@@ -206,5 +198,3 @@ if __name__ == '__main__':
 	# bench_mark_cpu()
 	
 	# test_time_cpu()
-
-	# test_cuda_convert_rgb_to_grayscale()
