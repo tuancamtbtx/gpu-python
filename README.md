@@ -58,7 +58,25 @@
   - Cài đặt song song hóa bước xóa seam, chèn seam:
     - Thành viên: Tú
 - Tuần 08:
-
+  - Chuẩn bị nội dung báo cáo hàng tuần
+    - Thành viên: Tú
+  - Sắp xếp và kết hợp các hàm đã song song hóa để chạy toàn bộ chương trình
+    - Thành viên: Hiếu
+  - Hoàn thành cài đặt song song hóa baseline: Cả nhóm
+  - Đưa lên Colab để chạy thực nghiệm:
+    - Thành viên: Tuấn
+- Tuần 09:
+  - Hoàn thành cài đặt song song hóa phiên bản v1: Cả nhóm
+  - Bổ sung báo cáo: đánh giá (ảnh) giữa cpu và gpu numba implementation
+    - Thành viên: Hiếu
+  - Cải tiến song song hóa (hạn chế in-out bound ở bộ nhớ, cache ở cuda):
+    - Thành viên: Tú
+  - Cải tiến song song hóa (tính toán kernel, chạy thực nghiệm để đánh giá): Cả nhóm
+  - Hoàn thành cài đặt cải tiến song song hóa phiên bản v2: Cả nhóm
+- Tuần 10:
+  - Bổ sung báo cáo: bổ sung đánh giá (ảnh) giữa cpu và gpu numba implementation
+    - Thành viên: Tuấn
+  - Đóng góp và sửa chữa báo cáo cho hoàn thiên: Cả nhóm
 ## Cách tổ chức:
 ### Tham số dòng lệnh:
 - seam_carving.py [-mode <running_mode>] [-dx <seam_dx>] [-dy <seam_dy>] [-in <image_in>] [-out <image_out>]
@@ -74,3 +92,4 @@
 - Slides đồ án môn Lập trình song song
 - https://avikdas.com/2019/07/29/improved-seam-carving-with-forward-energy.html
 - https://andrewdcampbell.github.io/seam-carving
+- https://numba.pydata.org/numba-doc/latest/cuda/index.html
