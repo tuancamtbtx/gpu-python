@@ -85,7 +85,7 @@
   + dx: số pixels cần thay đổi theo chiều ngang của ảnh
   + dy: số pixels cần thay đổi theo chiều dọc của ảnh
   + image_in: ảnh gốc được đưa vào
-  + image_out: ảnh sau khi sử dụng seam carving
+  + image_out: ảnh sau khi sử dụng seam carving (path pattern cpu: output_cpu, gpu: output_gpu)
 
 ## Tham khảo
 - https://github.com/kalpeshdusane/Seam-Carving-B.E.-Project
