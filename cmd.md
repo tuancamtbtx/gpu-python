@@ -23,7 +23,7 @@ python seam_carving_gpu.py -in "images/input.jpg" -out "output_gpu/insert500seam
 ## GPU
 python seam_carving_gpu.py -in "images/input.jpg" -out "output_gpu/remove50seams_by_row_baseline.jpg" -dx 0 -dy -50
 python seam_carving_gpu.py -in "images/input.jpg" -out "output_gpu/remove100seams_by_row_baseline.jpg" -dx 0 -dy -100
-python seam_carving_gpu.py -in "images/input.j-pg" -out "output_gpu/remove200seams_by_row_baseline.jpg" -dx 0 -dy -200
+python seam_carving_gpu.py -in "images/input.jpg" -out "output_gpu/remove200seams_by_row_baseline.jpg" -dx 0 -dy -200
 python seam_carving_gpu.py -in "images/input.jpg" -out "output_gpu/remove500seams_by_row_baseline.jpg" -dx 0 -dy -500
 
 ## CPU
