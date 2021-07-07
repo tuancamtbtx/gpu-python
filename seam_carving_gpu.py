@@ -4,6 +4,7 @@ from numba import jit, njit, cuda, float64, int16
 import math
 import time
 import argparse
+import hashlib
 
 # ignore numba warning
 from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning, NumbaWarning
@@ -30,6 +31,8 @@ def rgb2gray(img):
 def rotate_image(img, clockwise):
     k = 1 if clockwise else 3
     return np.ascontiguousarray(np.rot90(img, k))
+    # return np.rot90(img, k)
+
 
 
 @cuda.jit
@@ -112,10 +115,10 @@ def get_minimum_seam(min_costs, backtrack):
 
 
 @cuda.jit
-def remove_seam_kernel(img, seam_idxs, out_img):
+def remove_seam_kernel(img, seam_idxs, height, width, out_img):
     i, j = cuda.grid(2)
 
-    if i < img.shape[0] and j < img.shape[1]:
+    if i < height and j < width:
         if seam_idxs[i] <= j:
             for ch in range(img.shape[2]):
                 out_img[i][j][ch] = img[i][j + 1][ch]
@@ -174,12 +177,12 @@ def remove_seams_parallel(img, num_remove, checksum=False):
 
         ### remove seam kernel
         d_seam_idxs = cuda.to_device(seam_idxs)
-        d_out = cuda.device_array((img.shape[0], img.shape[1] - 1, img.shape[2]))
+        d_out = cuda.device_array((height, width - 1, img.shape[2]))
 
-        remove_seam_kernel[grid_size, block_size](d_img, d_seam_idxs, d_out)
+        remove_seam_kernel[grid_size, block_size](
+            d_img, d_seam_idxs, height, width - 1, d_out)
 
         img = d_out.copy_to_host()
-
 
     return img
 
@@ -191,13 +194,12 @@ def insert_seam_kernel(img, seam_idxs, out_img):
     row, col = cuda.grid(2)
     height, width = img.shape[:2]
     if row < img.shape[0] and col < img.shape[1]:
-        col = seam
         if seam_idxs[row] == col:
             if col == 0:
                 for ch in range(3):
-                    p = (img[row, col, ch] + img[row, col+1, ch]) / 2
-                    out_img[row][col][ch] = p
-                    out_img[row][col + 1][ch] = img[row][col][ch]
+                    p = (img[row, col, ch] + img[row, col + 1, ch]) / 2
+                    out_img[row][col + 1][ch] = p
+                    out_img[row][col][ch] = img[row][col][ch]
             else:
                 for ch in range(3):
                     p = (img[row, col - 1, ch] + img[row, col, ch]) / 2
@@ -265,14 +267,18 @@ def insert_seams_parallel(img, num_insert, checksum=False):
         d_seam_idxs = cuda.to_device(seam_idxs)
         d_out = cuda.device_array((height, width - 1, 3), dtype=np.float64)
 
-        remove_seam_kernel[grid_size, block_size](d_img, d_seam_idxs, d_out)
+        remove_seam_kernel[grid_size, block_size](
+            d_img, d_seam_idxs, height, width - 1, d_out)
 
         temp_img = d_out.copy_to_host()
 
 		# append seam to insert later
         seams_record.append(d_seam_idxs.copy_to_host())
 
+
     seams_record.reverse()
+
+    f = open("gpu.txt", "a")
 
     for _ in range(num_insert):
         height, width = img.shape[:2]
@@ -292,7 +298,10 @@ def insert_seams_parallel(img, num_insert, checksum=False):
         # update remaining seam indices
         for remain_seam in seams_record:
             remain_seam[np.where(remain_seam >= seam_idxs)] += 2
+        f.write(str(hashlib.sha256(img).hexdigest()) + '\n')
 
+
+    f.close()
     return img
 
 
@@ -320,7 +329,7 @@ def seam_carving(img, dx, dy, debug):
         output = insert_seams_parallel(output, dy, debug)
         output = rotate_image(output, False)
 
-    return output.astype(np.uint8)
+    return output.astype(np.float64)
 
 
 if __name__ == '__main__':

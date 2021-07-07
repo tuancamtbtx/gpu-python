@@ -4,6 +4,7 @@ import numpy as np
 from numba import jit, njit, cuda
 import math
 import time
+import hashlib
 
 import argparse
 
@@ -31,7 +32,7 @@ def rgb2gray(img):
 
 def rotate_image(img, clockwise):
     k = 1 if clockwise else 3
-    return np.rot90(img, k)
+    return np.ascontiguousarray(np.rot90(img, k))
 
 
 @njit
@@ -140,24 +141,24 @@ def get_minimum_seam(min_costs, backtrack):
 
 
 @njit
-def remove_seam(img, bool_mask):
+def remove_seam(img, seam_idxs):
     height, width, chanel = img.shape
 
     output = np.empty((height, width-1, chanel), dtype=np.float64)
     for row in range(height):
-        output_col = 0
         for col in range(width):
-            if bool_mask[row][col]:
+            if seam_idxs[row] <= col and col < width-1:
                 for ch in range(chanel):
-                    output[row][output_col][ch] = img[row][col][ch]
-                output_col += 1
+                    output[row][col][ch] = img[row][col + 1][ch]
             else:
-                continue
+                for ch in range(chanel):
+                    output[row][col][ch] = img[row][col][ch]
 
     return output
 
 
 def remove_seams(img, num_remove, test_time=False):
+
     start_rgb2gray = None
     rgb2gray_time = 0.
     start_forward_energy = None
@@ -194,16 +195,17 @@ def remove_seams(img, num_remove, test_time=False):
         if test_time:
             start_min_seam = time.perf_counter()
         # get minimum seam
-        seam, bool_mask = get_minimum_seam(min_costs, backtrack)
+        seam_idxs, bool_mask = get_minimum_seam(min_costs, backtrack)
         if test_time:
             min_seam_time += time.perf_counter() - start_min_seam
 
         if test_time:
             start_remove_seam = time.perf_counter()
         # remove seam
-        img = remove_seam(img, bool_mask)
+        img = remove_seam(img, seam_idxs)
         if test_time:
             remove_seam_time += time.perf_counter() - start_remove_seam
+        
 
     if test_time: 
         print(f"rgb2gray time: {rgb2gray_time:.3f} seconds")
@@ -211,7 +213,6 @@ def remove_seams(img, num_remove, test_time=False):
         print(f"get minimum cost table time: {min_cost_time:.3f} seconds")
         print(f"get minimum seam time:  {min_seam_time:.3f} seconds")
         print(f"remove seam time: {remove_seam_time:.3f} seconds")
-
     return img
 
 
@@ -280,21 +281,22 @@ def insert_seams(img, num_insert, test_time):
         if test_time:
             start_min_seam = time.perf_counter()
         # get minimum seam
-        seam, bool_mask = get_minimum_seam(min_costs, backtrack)
+        seam_idxs, bool_mask = get_minimum_seam(min_costs, backtrack)
         if test_time:
             min_seam_time += time.perf_counter() - start_min_seam
 
         # append seam to insert later
-        seams_record.append(seam)
+        seams_record.append(seam_idxs)
 
         if test_time:
             start_remove_seam = time.perf_counter()
         # remove seam
-        temp_img = remove_seam(temp_img, bool_mask)
+        temp_img = remove_seam(temp_img, seam_idxs)
         if test_time:
             remove_seam_time += time.perf_counter() - start_remove_seam
 
     seams_record.reverse()
+    f = open("cpu.txt", "a")
 
     for _ in range(num_insert):
         seam = seams_record.pop()
@@ -311,6 +313,10 @@ def insert_seams(img, num_insert, test_time):
         # update remaining seam indices
         for remain_seam in seams_record:
             remain_seam[np.where(remain_seam >= seam)] += 2
+        f.write(str(hashlib.sha256(img).hexdigest()) + '\n')
+
+
+    f.close()
     if test_time:
         print(f"rgb2gray time: {rgb2gray_time:.3f} seconds")
         print(f"forward energy time:  {forward_energy_time:.3f} seconds")
@@ -347,7 +353,7 @@ def seam_carving(img, dx, dy, test_time):
         output = insert_seams(output, dy, test_time)
         output = rotate_image(output, False)
 
-    return output
+    return output.astype(np.float64)
 
 
 if __name__ == '__main__':
