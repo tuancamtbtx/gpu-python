@@ -4,7 +4,6 @@ from numba import jit, njit, cuda, float64, int16
 import math
 import time
 import argparse
-import hashlib
 
 # ignore numba warning
 from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning, NumbaWarning
@@ -188,18 +187,17 @@ def remove_seams_parallel(img, num_remove, checksum=False):
 
 
 @cuda.jit
-def insert_seam_kernel(img, seam_idxs, out_img):
+def insert_seam_kernel(img, seam_idxs, height, width, out_img):
     # The inserted pixel values are derived from an
     # average of left and right neighbors.
     row, col = cuda.grid(2)
-    height, width = img.shape[:2]
-    if row < img.shape[0] and col < img.shape[1]:
+    if row < height and col < width:
         if seam_idxs[row] == col:
             if col == 0:
                 for ch in range(3):
                     p = (img[row, col, ch] + img[row, col + 1, ch]) / 2
-                    out_img[row][col + 1][ch] = p
-                    out_img[row][col][ch] = img[row][col][ch]
+                    out_img[row][col][ch] = p
+                    out_img[row][col + 1][ch] = img[row][col][ch]
             else:
                 for ch in range(3):
                     p = (img[row, col - 1, ch] + img[row, col, ch]) / 2
@@ -277,9 +275,6 @@ def insert_seams_parallel(img, num_insert, checksum=False):
 
 
     seams_record.reverse()
-
-    f = open("gpu.txt", "a")
-
     for _ in range(num_insert):
         height, width = img.shape[:2]
         seam_idxs = seams_record.pop()
@@ -291,17 +286,14 @@ def insert_seams_parallel(img, num_insert, checksum=False):
         # insert seam kernel
         d_seam_idxs = cuda.to_device(seam_idxs)
         d_img = cuda.to_device(img)
-        d_out = cuda.device_array((height, width + 1, 3))
-        insert_seam_kernel[grid_size, block_size](d_img, d_seam_idxs, d_out)
+        d_out = cuda.device_array((height, width + 1, img.shape[2]))
+        insert_seam_kernel[grid_size, block_size](
+            d_img, d_seam_idxs, height, width, d_out)
         img = d_out.copy_to_host()
 
         # update remaining seam indices
         for remain_seam in seams_record:
             remain_seam[np.where(remain_seam >= seam_idxs)] += 2
-        f.write(str(hashlib.sha256(img).hexdigest()) + '\n')
-
-
-    f.close()
     return img
 
 

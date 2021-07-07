@@ -4,7 +4,6 @@ import numpy as np
 from numba import jit, njit, cuda
 import math
 import time
-import hashlib
 
 import argparse
 
@@ -227,8 +226,8 @@ def insert_seam(img, seam_idx):
         for ch in range(chanel):
             if col == 0:
                 p = (img[row, col, ch] + img[row, col+1, ch]) / 2
-                output[row, col, ch] = img[row, col, ch]
-                output[row, col+1, ch] = p
+                # output[row, col, ch] = img[row, col, ch]
+                output[row, col, ch] = p
                 output[row, col+1:, ch] = img[row, col:, ch]
             else:
                 p = (img[row, col-1, ch] + img[row, col, ch]) / 2
@@ -296,7 +295,6 @@ def insert_seams(img, num_insert, test_time):
             remove_seam_time += time.perf_counter() - start_remove_seam
 
     seams_record.reverse()
-    f = open("cpu.txt", "a")
 
     for _ in range(num_insert):
         seam = seams_record.pop()
@@ -313,10 +311,7 @@ def insert_seams(img, num_insert, test_time):
         # update remaining seam indices
         for remain_seam in seams_record:
             remain_seam[np.where(remain_seam >= seam)] += 2
-        f.write(str(hashlib.sha256(img).hexdigest()) + '\n')
 
-
-    f.close()
     if test_time:
         print(f"rgb2gray time: {rgb2gray_time:.3f} seconds")
         print(f"forward energy time:  {forward_energy_time:.3f} seconds")
