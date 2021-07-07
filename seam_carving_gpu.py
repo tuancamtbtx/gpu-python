@@ -1,8 +1,6 @@
-from PIL import Image
-from numpy.core.shape_base import block
 import cv2
 import numpy as np
-from numba import jit, njit, cuda, float64
+from numba import jit, njit, cuda, float64, int16
 import math
 import time
 import argparse
@@ -16,6 +14,17 @@ warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 warnings.simplefilter('ignore', category=NumbaWarning)
 
 MAX_WIDTH = 1500
+
+@njit
+def rgb2gray(img):
+    h, w = img.shape[:2]
+    gray_img = np.zeros((h, w), dtype=np.float64)
+    for i in range(h):
+        for j in range(w):
+            gray_img[i][j] = img[i][j][0]*0.2989 + \
+                img[i][j][1]*0.5870 + img[i][j][2]*0.1140
+
+    return gray_img
 
 
 def rotate_image(img, clockwise):
@@ -115,103 +124,26 @@ def remove_seam_kernel(img, seam_idxs, out_img):
                 out_img[i][j][ch] = img[i][j][ch]
     return
 
-@njit
-def remove_seam(img, bool_mask):
-    height, width, chanel = img.shape
 
-    output = np.empty((height, width-1, chanel), dtype=np.float64)
-    for row in range(height):
-        output_col = 0
-        for col in range(width):
-            if bool_mask[row][col]:
-                for ch in range(chanel):
-                    output[row][output_col][ch] = img[row][col][ch]
-                output_col += 1
-            else:
-                continue
-
-    return output
-
-@njit
-def rgb2gray(img):
-    img = img
-    h, w = img.shape[:2]
-    gray_img = np.zeros((h, w), dtype=np.float64)
-    for i in range(h):
-        for j in range(w):
-            gray_img[i][j] = img[i][j][0]*0.2989 + \
-                img[i][j][1]*0.5870 + img[i][j][2]*0.1140
-
-    return gray_img
-
-@njit
-def get_minimum_cost_table(energy):
-    h, w = energy.shape[:2]
-    backtrack = np.zeros_like(energy, dtype=np.uint16)
-    for r in range(1, h):
-        for c in range(0, w):
-            left = max(0, c - 1)
-            right = min(w - 1, c + 1)
-
-            min_energy = energy[r-1, left]
-            backtrack_col = left
-            if energy[r-1, c] < min_energy:
-                min_energy = energy[r-1, c]
-                backtrack_col = c
-            if energy[r-1, right] < min_energy:
-                min_energy = energy[r-1, right]
-                backtrack_col = right
-
-            energy[r, c] += min_energy
-            backtrack[r, c] = backtrack_col
-
-    return energy, backtrack
-
-@njit
-def forward_energy(gray_img):
-    height, width = gray_img.shape[:2]
-
-    energy = np.zeros((height, width))
-    m = np.zeros((height, width))
-
-    for r in range(1, height):
-        for c in range(width):
-            up = (r-1) % height
-            left = (c-1) % width
-            right = (c+1) % width
-
-            mU = m[up, c]
-            mL = m[up, left]
-            mR = m[up, right]
-
-            cU = np.abs(gray_img[r, right] - gray_img[r, left])
-            cL = np.abs(gray_img[up, c] - gray_img[r, left]) + cU
-            cR = np.abs(gray_img[up, c] - gray_img[r, right]) + cU
-
-            cULR = np.array([cU, cL, cR])
-            mULR = np.array([mU, mL, mR]) + cULR
-
-            argmin = np.argmin(mULR)
-
-            m[r, c] = mULR[argmin]
-            energy[r, c] = cULR[argmin]
-
-    return energy
-
-def remove_seams_parallel(img, num_remove):
+def remove_seams_parallel(img, num_remove, checksum=False):
 
     for _ in range(num_remove):
         height, width = img.shape[:2]
         block_size = 32, 32
         grid_size = (math.ceil(height / block_size[0]),
                     math.ceil(width / block_size[1]))
-
-        ## gray2rgb kernel
+        
         d_img = cuda.to_device(img)
-        d_gray_img = cuda.device_array(img.shape[0:2])
 
-        rgb2gray_kernel[grid_size, block_size](d_img, d_gray_img)
-        # cuda.synchronize()
+        gray_img = None
+        d_gray_img = None
+        if checksum:
+            gray_img = rgb2gray(img)
+            d_gray_img = cuda.to_device(gray_img)
+        else:
+            ### gray2rgb kernel
+            d_gray_img = cuda.device_array(img.shape[0:2], dtype=np.float64)
+            rgb2gray_kernel[grid_size, block_size](d_img, d_gray_img)
 
 
         ### forward energy kernel
@@ -224,7 +156,6 @@ def remove_seams_parallel(img, num_remove):
         for r in range(1, height):
             forward_energy_kernel[grid_size_energy, block_size_energy](
                 d_gray_img, d_energy, d_m, r)
-            # cuda.synchronize()
 
 
         ### get minimum cost table kernel
@@ -235,7 +166,6 @@ def remove_seams_parallel(img, num_remove):
         for r in range(1, height):
             get_minimum_cost_table_kernel[grid_size_min_cost, block_size_min_cost](
                 d_energy, d_backtrack, width, r)
-            # cuda.synchronize()
         min_costs = d_energy.copy_to_host()
         backtrack = d_backtrack.copy_to_host()
 
@@ -247,7 +177,6 @@ def remove_seams_parallel(img, num_remove):
         d_out = cuda.device_array((img.shape[0], img.shape[1] - 1, img.shape[2]))
 
         remove_seam_kernel[grid_size, block_size](d_img, d_seam_idxs, d_out)
-        # cuda.synchronize()
 
         img = d_out.copy_to_host()
 
@@ -259,32 +188,33 @@ def remove_seams_parallel(img, num_remove):
 def insert_seam_kernel(img, seam_idxs, out_img):
     # The inserted pixel values are derived from an
     # average of left and right neighbors.
-    i, j = cuda.grid(2)
-
-    if i < img.shape[0] and j < img.shape[1]:
-        if seam_idxs[i] == j:
-            if j == 0:
-                for ch in range(img.shape[2]):
-                    p = (img[i, j, ch] + img[i, j+1, ch]) / 2
-                    out_img[i][j][ch] = p
-                    out_img[i][j + 1][ch] = img[i][j][ch]
+    row, col = cuda.grid(2)
+    height, width = img.shape[:2]
+    if row < img.shape[0] and col < img.shape[1]:
+        col = seam
+        if seam_idxs[row] == col:
+            if col == 0:
+                for ch in range(3):
+                    p = (img[row, col, ch] + img[row, col+1, ch]) / 2
+                    out_img[row][col][ch] = p
+                    out_img[row][col + 1][ch] = img[row][col][ch]
             else:
-                for ch in range(img.shape[2]):
-                    p = (img[i, j - 1, ch] + img[i, j, ch]) / 2
-                    out_img[i][j][ch] = p
-                    out_img[i][j + 1][ch] = img[i][j][ch]
+                for ch in range(3):
+                    p = (img[row, col - 1, ch] + img[row, col, ch]) / 2
+                    out_img[row][col][ch] = p
+                    out_img[row][col + 1][ch] = img[row][col][ch]
 
-        elif j < seam_idxs[i]:
-            for ch in range(img.shape[2]):
-                out_img[i][j][ch] = img[i][j][ch]
+        elif col < seam_idxs[row]:
+            for ch in range(3):
+                out_img[row][col][ch] = img[row][col][ch]
         else:
-            for ch in range(img.shape[2]):
-                out_img[i][j + 1][ch] = img[i][j][ch]
+            for ch in range(3):
+                out_img[row][col + 1][ch] = img[row][col][ch]
 
     return
 
 
-def insert_seams_parallel(img, num_insert):
+def insert_seams_parallel(img, num_insert, checksum=False):
     temp_img = img.copy()  # create replicating image from the input image
     seams_record = []
 
@@ -294,12 +224,17 @@ def insert_seams_parallel(img, num_insert):
         grid_size = (math.ceil(height / block_size[0]),
                     math.ceil(width / block_size[1]))
 
-        # gray2rgb kernel
         d_img = cuda.to_device(temp_img)
-        d_gray_img = cuda.device_array(temp_img.shape[0:2])
+        gray_img = None
+        d_gray_img = None
+        if checksum:
+            gray_img = rgb2gray(temp_img)
+            d_gray_img = cuda.to_device(gray_img)
+        else:
+            ## gray2rgb kernel
+            d_gray_img = cuda.device_array(temp_img.shape[0:2])
+            rgb2gray_kernel[grid_size, block_size](d_img, d_gray_img)
 
-        rgb2gray_kernel[grid_size, block_size](d_img, d_gray_img)
-        # cuda.synchronize()
 
         # forward energy kernel
         d_energy = cuda.device_array((height, width), dtype=np.float64)
@@ -311,7 +246,6 @@ def insert_seams_parallel(img, num_insert):
         for r in range(1, height):
             forward_energy_kernel[grid_size_energy, block_size_energy](
                 d_gray_img, d_energy, d_m, r)
-            # cuda.synchronize()
 
         # get minimum cost table kernel
         d_backtrack = cuda.device_array((height, width), dtype=np.uint16)
@@ -322,7 +256,6 @@ def insert_seams_parallel(img, num_insert):
         for r in range(1, height):
             get_minimum_cost_table_kernel[grid_size_min_cost, block_size_min_cost](
                 d_energy, d_backtrack, width, r)
-            # cuda.synchronize()
 
         min_costs = d_energy.copy_to_host()
         backtrack = d_backtrack.copy_to_host()
@@ -333,7 +266,6 @@ def insert_seams_parallel(img, num_insert):
         d_out = cuda.device_array((height, width - 1, 3), dtype=np.float64)
 
         remove_seam_kernel[grid_size, block_size](d_img, d_seam_idxs, d_out)
-        # cuda.synchronize()
 
         temp_img = d_out.copy_to_host()
 
@@ -364,7 +296,7 @@ def insert_seams_parallel(img, num_insert):
     return img
 
 
-def seam_carving(img, dx, dy):
+def seam_carving(img, dx, dy, debug):
     img = img.astype(np.float64)
     h, w = img.shape[:2]
 
@@ -373,22 +305,22 @@ def seam_carving(img, dx, dy):
     output = img
 
     if dx < 0:
-        output = remove_seams_parallel(output, -dx)
+        output = remove_seams_parallel(output, -dx, debug)
 
     elif dx > 0:
-        output = insert_seams_parallel(output, dx)
+        output = insert_seams_parallel(output, dx, debug)
 
     if dy < 0:
         output = rotate_image(output, True)
-        output = remove_seams_parallel(output, -dy)
+        output = remove_seams_parallel(output, -dy, debug)
         output = rotate_image(output, False)
 
     elif dy > 0:
         output = rotate_image(output, True)
-        output = insert_seams_parallel(output, dy)
+        output = insert_seams_parallel(output, dy, debug)
         output = rotate_image(output, False)
 
-    return output
+    return output.astype(np.uint8)
 
 
 if __name__ == '__main__':
@@ -402,13 +334,14 @@ if __name__ == '__main__':
     arg_parse.add_argument("-in", help="Path to image", required=True)
     arg_parse.add_argument("-out", help="Output file name", required=True)
 
+    arg_parse.add_argument("-checksum", default=False, action='store_true', help="Calculate rgb2gray by host for SHASUM", required=False)
+
     args = vars(arg_parse.parse_args())
 
     print("SEAM CARVING GPU - BASELINE")
 
     IN_IMG, OUT_IMG = args["in"], args["out"]
 
-    assert "output_gpu/" in OUT_IMG
     img = cv2.imread(IN_IMG)
     assert img is not None
     print("Input image shape: " + str(img.shape))
@@ -417,7 +350,16 @@ if __name__ == '__main__':
     dx, dy = args["dx"], args["dy"]
     assert dx is not None and dy is not None
     start = time.perf_counter()
-    output = seam_carving(img, dx, dy)
+    output = seam_carving(img, dx, dy, args["checksum"])
     cv2.imwrite(OUT_IMG, output)
     print("Output image shape: " + str(output.shape))
-    print(f"Completed execution in {time.perf_counter() - start} seconds")
+    print(f"Total time: {time.perf_counter() - start:.3f} seconds")
+    # import seam_carving_cpu as cpu
+    # output2 = cpu.seam_carving(img, dx, dy, False)
+    # for i in range(output.shape[0]):
+    #     for j in range(output.shape[1]):
+    #         if (output[i, j] != output2[i, j]).any():
+    #             print(output[i, j], output2[i, j])
+    # print(hash(str(output)))
+    # print(hash(str(output2)))
+    # print(np.mean(np.abs(output - output2)))
