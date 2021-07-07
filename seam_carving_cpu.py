@@ -157,23 +157,60 @@ def remove_seam(img, bool_mask):
     return output
 
 
-@njit
-def remove_seams(img, num_remove):
-    for _ in range(num_remove):
-        # convert image to grayscale
-        gray_img = rgb2gray(img)
+def remove_seams(img, num_remove, test_time=False):
+    start_rgb2gray = None
+    rgb2gray_time = 0.
+    start_forward_energy = None
+    forward_energy_time = 0. 
+    start_min_cost = None
+    min_cost_time = 0.
+    start_min_seam = None
+    min_seam_time = 0.
+    start_remove_seam = None
+    remove_seam_time = 0.
 
+    for i in range(num_remove):
+        if test_time:
+            start_rgb2gray = time.perf_counter()
+        ### convert image to grayscale
+        gray_img = rgb2gray(img)
+        if test_time:
+            rgb2gray_time += time.perf_counter() - start_rgb2gray
+
+        if test_time:
+            start_forward_energy = time.perf_counter()
         # calculate energy table
         energy = forward_energy(gray_img)
+        if test_time:
+            forward_energy_time += time.perf_counter() - start_forward_energy
 
+        if test_time:
+            start_min_cost = time.perf_counter()
         # get minimum cost table
         min_costs, backtrack = get_minimum_cost_table(energy)
+        if test_time:
+            min_cost_time += time.perf_counter() - start_min_cost
 
+        if test_time:
+            start_min_seam = time.perf_counter()
         # get minimum seam
         seam, bool_mask = get_minimum_seam(min_costs, backtrack)
+        if test_time:
+            min_seam_time += time.perf_counter() - start_min_seam
 
+        if test_time:
+            start_remove_seam = time.perf_counter()
         # remove seam
         img = remove_seam(img, bool_mask)
+        if test_time:
+            remove_seam_time += time.perf_counter() - start_remove_seam
+
+    
+    print(f"rgb2gray time: {rgb2gray_time} seconds")
+    print(f"forward energy time:  {forward_energy_time} seconds")
+    print(f"get minimum cost table time: {min_cost_time} seconds")
+    print(f"get minimum seam time:  {min_seam_time} seconds")
+    print(f"remove seam time: {remove_seam_time} seconds")
 
     return img
 
@@ -201,6 +238,7 @@ def insert_seam(img, seam_idx):
     return output
 
 
+@njit
 def insert_seams(img, num_insert):
     temp_img = img.copy()  # create replicating image from the input image
     seams_record = []
@@ -238,7 +276,7 @@ def insert_seams(img, num_insert):
     return img
 
 
-def seam_carving(img, dx, dy):
+def seam_carving(img, dx, dy, test_time):
     img = img.astype(np.float64)
     h, w = img.shape[:2]
 
@@ -247,14 +285,14 @@ def seam_carving(img, dx, dy):
     output = img
 
     if dx < 0:
-        output = remove_seams(output, -dx)
+        output = remove_seams(output, -dx, test_time)
 
     elif dx > 0:
         output = insert_seams(output, dx)
 
     if dy < 0:
         output = rotate_image(output, True)
-        output = remove_seams(output, -dy)
+        output = remove_seams(output, -dy, test_time)
         output = rotate_image(output, False)
 
     elif dy > 0:
@@ -275,6 +313,8 @@ if __name__ == '__main__':
 
     arg_parse.add_argument("-in", help="Path to image", required=True)
     arg_parse.add_argument("-out", help="Output file name", required=True)
+    
+    arg_parse.add_argument("-test_time", default=False, action='store_true', help="Test time", required=False)
 
     args = vars(arg_parse.parse_args())
 
@@ -282,7 +322,6 @@ if __name__ == '__main__':
 
     IN_IMG, OUT_IMG = args["in"], args["out"]
 
-    assert "output_cpu/" in OUT_IMG
     img = cv2.imread(IN_IMG)
     assert img is not None
     print("Input image shape: " + str(img.shape))
@@ -291,7 +330,7 @@ if __name__ == '__main__':
     dx, dy = args["dx"], args["dy"]
     assert dx is not None and dy is not None
     start = time.perf_counter()
-    output = seam_carving(img, dx, dy)
+    output = seam_carving(img, dx, dy, args["test_time"])
     cv2.imwrite(OUT_IMG, output)
     print("Output image shape: " + str(output.shape))
     print(f"Completed execution in {time.perf_counter() - start} seconds")
