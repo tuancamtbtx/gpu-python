@@ -205,12 +205,12 @@ def remove_seams(img, num_remove, test_time=False):
         if test_time:
             remove_seam_time += time.perf_counter() - start_remove_seam
 
-    
-    print(f"rgb2gray time: {rgb2gray_time} seconds")
-    print(f"forward energy time:  {forward_energy_time} seconds")
-    print(f"get minimum cost table time: {min_cost_time} seconds")
-    print(f"get minimum seam time:  {min_seam_time} seconds")
-    print(f"remove seam time: {remove_seam_time} seconds")
+    if test_time: 
+        print(f"rgb2gray time: {rgb2gray_time:.3f} seconds")
+        print(f"forward energy time:  {forward_energy_time:.3f} seconds")
+        print(f"get minimum cost table time: {min_cost_time:.3f} seconds")
+        print(f"get minimum seam time:  {min_seam_time:.3f} seconds")
+        print(f"remove seam time: {remove_seam_time:.3f} seconds")
 
     return img
 
@@ -238,40 +238,87 @@ def insert_seam(img, seam_idx):
     return output
 
 
-@njit
-def insert_seams(img, num_insert):
+def insert_seams(img, num_insert, test_time):
     temp_img = img.copy()  # create replicating image from the input image
     seams_record = []
-    for _ in range(num_insert):
-        # convert image to grayscale
-        gray_img = rgb2gray(temp_img)
 
+    start_rgb2gray = None
+    rgb2gray_time = 0.
+    start_forward_energy = None
+    forward_energy_time = 0. 
+    start_min_cost = None
+    min_cost_time = 0.
+    start_min_seam = None
+    min_seam_time = 0.
+    start_remove_seam = None
+    remove_seam_time = 0.
+    start_insert_seam = None
+    insert_seam_time = 0.
+
+    for _ in range(num_insert):
+        if test_time:
+            start_rgb2gray = time.perf_counter()
+        ### convert image to grayscale
+        gray_img = rgb2gray(temp_img)
+        if test_time:
+            rgb2gray_time += time.perf_counter() - start_rgb2gray
+
+        if test_time:
+            start_forward_energy = time.perf_counter()
         # calculate energy table
         energy = forward_energy(gray_img)
+        if test_time:
+            forward_energy_time += time.perf_counter() - start_forward_energy
 
+        if test_time:
+            start_min_cost = time.perf_counter()
         # get minimum cost table
         min_costs, backtrack = get_minimum_cost_table(energy)
+        if test_time:
+            min_cost_time += time.perf_counter() - start_min_cost
 
+        if test_time:
+            start_min_seam = time.perf_counter()
         # get minimum seam
         seam, bool_mask = get_minimum_seam(min_costs, backtrack)
+        if test_time:
+            min_seam_time += time.perf_counter() - start_min_seam
 
         # append seam to insert later
         seams_record.append(seam)
 
+        if test_time:
+            start_remove_seam = time.perf_counter()
         # remove seam
         temp_img = remove_seam(temp_img, bool_mask)
+        if test_time:
+            remove_seam_time += time.perf_counter() - start_remove_seam
 
     seams_record.reverse()
 
     for _ in range(num_insert):
         seam = seams_record.pop()
 
+
+        if test_time:
+            start_insert_seam = time.perf_counter()
         # insert seam
         img = insert_seam(img, seam)
+        if test_time:
+            insert_seam_time += time.perf_counter() - start_insert_seam
+
 
         # update remaining seam indices
         for remain_seam in seams_record:
             remain_seam[np.where(remain_seam >= seam)] += 2
+    if test_time:
+        print(f"rgb2gray time: {rgb2gray_time:.3f} seconds")
+        print(f"forward energy time:  {forward_energy_time:.3f} seconds")
+        print(f"get minimum cost table time: {min_cost_time:.3f} seconds")
+        print(f"get minimum seam time:  {min_seam_time:.3f} seconds")
+        print(f"remove seam time: {remove_seam_time:.3f} seconds")
+        print(f"insert seam time: {insert_seam_time:.3f} seconds")
+
 
     return img
 
@@ -288,7 +335,7 @@ def seam_carving(img, dx, dy, test_time):
         output = remove_seams(output, -dx, test_time)
 
     elif dx > 0:
-        output = insert_seams(output, dx)
+        output = insert_seams(output, dx, test_time)
 
     if dy < 0:
         output = rotate_image(output, True)
@@ -297,7 +344,7 @@ def seam_carving(img, dx, dy, test_time):
 
     elif dy > 0:
         output = rotate_image(output, True)
-        output = insert_seams(output, dy)
+        output = insert_seams(output, dy, test_time)
         output = rotate_image(output, False)
 
     return output
@@ -333,4 +380,4 @@ if __name__ == '__main__':
     output = seam_carving(img, dx, dy, args["test_time"])
     cv2.imwrite(OUT_IMG, output)
     print("Output image shape: " + str(output.shape))
-    print(f"Completed execution in {time.perf_counter() - start} seconds")
+    print(f"Total time: {time.perf_counter() - start:.3f} seconds")
