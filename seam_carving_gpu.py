@@ -13,7 +13,7 @@ warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
 warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 warnings.simplefilter('ignore', category=NumbaWarning)
 
-MAX_WIDTH = 1500
+BLOCK_SIZE = 32
 
 @njit
 def rgb2gray(img):
@@ -131,10 +131,10 @@ def remove_seams_parallel(img, num_remove, checksum=False):
 
     for _ in range(num_remove):
         height, width = img.shape[:2]
-        block_size = 32, 32
+        block_size = BLOCK_SIZE, BLOCK_SIZE
         grid_size = (math.ceil(height / block_size[0]),
                     math.ceil(width / block_size[1]))
-        
+
         d_img = cuda.to_device(img)
 
         gray_img = None
@@ -152,7 +152,7 @@ def remove_seams_parallel(img, num_remove, checksum=False):
         d_energy = cuda.device_array((height, width), dtype=np.float64)
         d_m = cuda.device_array((height, width), dtype=np.float64)
 
-        block_size_energy = 32
+        block_size_energy = BLOCK_SIZE
         grid_size_energy = math.ceil(width / block_size_energy)
 
         for r in range(1, height):
@@ -163,7 +163,7 @@ def remove_seams_parallel(img, num_remove, checksum=False):
         ### get minimum cost table kernel
         d_backtrack = cuda.device_array((height, width), dtype=np.uint16)
 
-        block_size_min_cost = 32
+        block_size_min_cost = BLOCK_SIZE
         grid_size_min_cost = math.ceil(width / block_size_min_cost)
         for r in range(1, height):
             get_minimum_cost_table_kernel[grid_size_min_cost, block_size_min_cost](
@@ -220,7 +220,7 @@ def insert_seams_parallel(img, num_insert, checksum=False):
 
     for _ in range(num_insert):
         height, width = temp_img.shape[:2]
-        block_size = 32, 32
+        block_size = BLOCK_SIZE, BLOCK_SIZE
         grid_size = (math.ceil(height / block_size[0]),
                     math.ceil(width / block_size[1]))
 
@@ -240,7 +240,7 @@ def insert_seams_parallel(img, num_insert, checksum=False):
         d_energy = cuda.device_array((height, width), dtype=np.float64)
         d_m = cuda.device_array((height, width), dtype=np.float64)
 
-        block_size_energy = 32
+        block_size_energy = BLOCK_SIZE
         grid_size_energy = math.ceil(width / block_size_energy)
 
         for r in range(1, height):
@@ -250,7 +250,7 @@ def insert_seams_parallel(img, num_insert, checksum=False):
         # get minimum cost table kernel
         d_backtrack = cuda.device_array((height, width), dtype=np.uint16)
 
-        block_size_min_cost = 32
+        block_size_min_cost = BLOCK_SIZE
         grid_size_min_cost = math.ceil(width / block_size_min_cost)
 
         for r in range(1, height):
@@ -279,7 +279,7 @@ def insert_seams_parallel(img, num_insert, checksum=False):
         height, width = img.shape[:2]
         seam_idxs = seams_record.pop()
 
-        block_size = 32, 32
+        block_size = BLOCK_SIZE, BLOCK_SIZE
         grid_size = (math.ceil(height / block_size[0]),
                     math.ceil(width / block_size[1]))
 

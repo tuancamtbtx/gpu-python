@@ -93,3 +93,6 @@
 - https://avikdas.com/2019/07/29/improved-seam-carving-with-forward-energy.html
 - https://andrewdcampbell.github.io/seam-carving
 - https://numba.pydata.org/numba-doc/latest/cuda/index.html
+
+## Input/Output thực nghiệm các hình khác
+- https://drive.google.com/drive/folders/1kIN9H2TTnlZ2BWiorMmnpONIN0pKyeTb?usp=sharing

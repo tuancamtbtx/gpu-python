@@ -55,7 +55,7 @@ def compare_cpu_and_gpu(path1='output_cpu', path2='output_gpu', write_to_file=Tr
                     f.write('Comparing {0} & {1}\n'.format(path_file1, path_file2))
                     f.write('Status: {0}\n'.format(status))
                     f.write('Image 1(sha256): {0}\n'.format(hash_img1))
-                    f.write('Image 2(sha256): {0}\n'.format(hash_img2))
+                    f.write('Image 2(sha256): {0}\n\n'.format(hash_img2))
 
     print('Total PASS: {0}'.format(total_pass))
     print('Total FAIL: {0}'.format(total_fail))
