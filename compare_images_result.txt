@@ -1,0 +1,68 @@
+Comparing output_cpu/insert50seams_by_row_baseline.jpg & output_gpu/insert50seams_by_row_baseline.jpg
+Status: PASS
+Image 1(sha256): e1d1313c369f577fe188b49e51079d31ebc4063445a06eabeaf18b06c4803eab
+Image 2(sha256): e1d1313c369f577fe188b49e51079d31ebc4063445a06eabeaf18b06c4803eab
+Comparing output_cpu/remove500seams_by_row_baseline.jpg & output_gpu/remove500seams_by_row_baseline.jpg
+Status: PASS
+Image 1(sha256): fdc6040e7265eb3c0242ec5bab058626c62c80a24a0f30081a09018da2651b9c
+Image 2(sha256): fdc6040e7265eb3c0242ec5bab058626c62c80a24a0f30081a09018da2651b9c
+Comparing output_cpu/remove100seams_by_row_baseline.jpg & output_gpu/remove100seams_by_row_baseline.jpg
+Status: PASS
+Image 1(sha256): a7ab29e6846e90040bf7c20f719d0b3ea83cdd15d3960b691d72ae77d6eb02ae
+Image 2(sha256): a7ab29e6846e90040bf7c20f719d0b3ea83cdd15d3960b691d72ae77d6eb02ae
+Comparing output_cpu/remove50seams_by_row_baseline.jpg & output_gpu/remove50seams_by_row_baseline.jpg
+Status: PASS
+Image 1(sha256): 4b26f6b9f88e744d049f989fe2d9d00d07d6a54e3f7ee87d37722350310e2317
+Image 2(sha256): 4b26f6b9f88e744d049f989fe2d9d00d07d6a54e3f7ee87d37722350310e2317
+Comparing output_cpu/insert500seams_by_row_baseline.jpg & output_gpu/insert500seams_by_row_baseline.jpg
+Status: PASS
+Image 1(sha256): 3b32cfaca8875ddf23ec5b40c5d7958acd52165d3ee657a916f7769dcd5e3c56
+Image 2(sha256): 3b32cfaca8875ddf23ec5b40c5d7958acd52165d3ee657a916f7769dcd5e3c56
+Comparing output_cpu/insert200seams_by_row_baseline.jpg & output_gpu/insert200seams_by_row_baseline.jpg
+Status: PASS
+Image 1(sha256): ce3b5800f32da757e9333ff959c9e1a158d4c6592a2cf6ae3b6fb5d2c66a81e6
+Image 2(sha256): ce3b5800f32da757e9333ff959c9e1a158d4c6592a2cf6ae3b6fb5d2c66a81e6
+Comparing output_cpu/remove200seams_by_row_baseline.jpg & output_gpu/remove200seams_by_row_baseline.jpg
+Status: PASS
+Image 1(sha256): 13a37fc754974b59233d97a95ca8f5b8405ca26d29ab110c448a52e900c1c69b
+Image 2(sha256): 13a37fc754974b59233d97a95ca8f5b8405ca26d29ab110c448a52e900c1c69b
+Comparing output_cpu/remove100seams_by_column_baseline.jpg & output_gpu/remove100seams_by_column_baseline.jpg
+Status: PASS
+Image 1(sha256): 1dcb1c2a49396f1c42bd7d6c88a8698ddb75da285c06dc4c5f356a8bc8b7e474
+Image 2(sha256): 1dcb1c2a49396f1c42bd7d6c88a8698ddb75da285c06dc4c5f356a8bc8b7e474
+Comparing output_cpu/insert100seams_by_column_baseline.jpg & output_gpu/insert100seams_by_column_baseline.jpg
+Status: PASS
+Image 1(sha256): 0d1665c8ecea183f798f2cac6e6daedaebbebea1ff987b13b5c6d373755a0d0a
+Image 2(sha256): 0d1665c8ecea183f798f2cac6e6daedaebbebea1ff987b13b5c6d373755a0d0a
+Comparing output_cpu/insert100seams_by_row_baseline.jpg & output_gpu/insert100seams_by_row_baseline.jpg
+Status: PASS
+Image 1(sha256): 703897155cc7e6b5a94c0a56cd9d5790f7d40e73b49c8e841c11912d30665fd9
+Image 2(sha256): 703897155cc7e6b5a94c0a56cd9d5790f7d40e73b49c8e841c11912d30665fd9
+Comparing output_cpu/insert50seams_by_column_baseline.jpg & output_gpu/insert50seams_by_column_baseline.jpg
+Status: PASS
+Image 1(sha256): e7e925be9dfd01a0906dd288fd118afe5732d4356e4478a3d0833e1abe9441d7
+Image 2(sha256): e7e925be9dfd01a0906dd288fd118afe5732d4356e4478a3d0833e1abe9441d7
+Comparing output_cpu/insert500seams_by_column_baseline.jpg & output_gpu/insert500seams_by_column_baseline.jpg
+Status: PASS
+Image 1(sha256): 4ee30af04e613aca9ff6154ef3a6ab389beee5157ebee8a0833271859b68e2f5
+Image 2(sha256): 4ee30af04e613aca9ff6154ef3a6ab389beee5157ebee8a0833271859b68e2f5
+Comparing output_cpu/remove200seams_by_column_baseline.jpg & output_gpu/remove200seams_by_column_baseline.jpg
+Status: PASS
+Image 1(sha256): cf338b381fc9cdbd9e91852d23e4467d537fb51095afac4bb8645a4b81f8545b
+Image 2(sha256): cf338b381fc9cdbd9e91852d23e4467d537fb51095afac4bb8645a4b81f8545b
+Comparing output_cpu/remove500seams_by_column_baseline.jpg & output_gpu/remove500seams_by_column_baseline.jpg
+Status: PASS
+Image 1(sha256): 7fd790b7bfe7e5849befd8f52dc84a4de2d7ef9de0a90c1be01bbf69e7e6dcea
+Image 2(sha256): 7fd790b7bfe7e5849befd8f52dc84a4de2d7ef9de0a90c1be01bbf69e7e6dcea
+Comparing output_cpu/insert200seams_by_column_baseline.jpg & output_gpu/insert200seams_by_column_baseline.jpg
+Status: PASS
+Image 1(sha256): eb1476fa05c7eb367cf4c12405ad6c45a9e76a3f8f9c8fa517d66bb4c762478e
+Image 2(sha256): eb1476fa05c7eb367cf4c12405ad6c45a9e76a3f8f9c8fa517d66bb4c762478e
+Comparing output_cpu/remove50seams_by_column_baseline.jpg & output_gpu/remove50seams_by_column_baseline.jpg
+Status: PASS
+Image 1(sha256): 6b325a02436ccf3f90281b9725b9b1d2725c1f7a9cda9b057d02f04923a92cdb
+Image 2(sha256): 6b325a02436ccf3f90281b9725b9b1d2725c1f7a9cda9b057d02f04923a92cdb
+
+Total PASS: 16
+
+Total FAIL: 0
