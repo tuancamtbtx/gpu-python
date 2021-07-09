@@ -222,3 +222,35 @@ Input image shape: (968, 1428, 3)
 Output image shape: (468, 1428, 3)
 Total time: 165.852 seconds
 
+seam_carving_gpu.py -in images/input.jpg -out output_gpu/remove50seams_by_column_baseline.jpg -dx -50 -dy 0 -checksum
+SEAM CARVING GPU - BASELINE
+BLOCK_SIZE_1D: 32
+BLOCK_SIZE_2D: 16
+Input image shape: (968, 1428, 3)
+Output image shape: (968, 1378, 3)
+Total time: 13.609 seconds
+
+seam_carving_gpu.py -in images/input.jpg -out output_gpu/remove100seams_by_column_baseline.jpg -dx -100 -dy 0 -checksum
+SEAM CARVING GPU - BASELINE
+BLOCK_SIZE_1D: 32
+BLOCK_SIZE_2D: 16
+Input image shape: (968, 1428, 3)
+Output image shape: (968, 1328, 3)
+Total time: 28.853 seconds
+
+seam_carving_gpu.py -in images/input.jpg -out output_gpu/remove200seams_by_column_baseline.jpg -dx -200 -dy 0 -checksum
+SEAM CARVING GPU - BASELINE
+BLOCK_SIZE_1D: 32
+BLOCK_SIZE_2D: 16
+Input image shape: (968, 1428, 3)
+Output image shape: (968, 1228, 3)
+Total time: 52.854 seconds
+
+seam_carving_gpu.py -in images/input.jpg -out output_gpu/remove500seams_by_column_baseline.jpg -dx -500 -dy 0 -checksum
+SEAM CARVING GPU - BASELINE
+BLOCK_SIZE_1D: 32
+BLOCK_SIZE_2D: 16
+Input image shape: (968, 1428, 3)
+Output image shape: (968, 928, 3)
+Total time: 112.534 seconds
+
