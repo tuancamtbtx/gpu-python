@@ -26,7 +26,7 @@ def compare_cpu_and_gpu(path1='output_cpu', path2='output_gpu', write_to_file=Tr
     path1_filenames = [f for f in listdir(path1) if isfile(join(path1, f))]
     path2_filenames = [f for f in listdir(path2) if isfile(join(path2, f))]
 
-    f = open("compare_images_result_v1.txt", "w")
+    f = open("compare_images_result.txt", "w")
     total_pass = 0
     total_fail = 0
     for filename1 in path1_filenames:
