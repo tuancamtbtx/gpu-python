@@ -1,0 +1,84 @@
+Comparing output_cpu/insert50seams_by_row_baseline.jpg & output_gpu_v1/insert50seams_by_row_baseline.jpg
+Status: FAIL
+Image 1(sha256): e1d1313c369f577fe188b49e51079d31ebc4063445a06eabeaf18b06c4803eab
+Image 2(sha256): 13685f03e5cc87935568f9b12c3bd85018ef519bfa2e9337ea7d4128e1e4fa0b
+
+Comparing output_cpu/remove500seams_by_row_baseline.jpg & output_gpu_v1/remove500seams_by_row_baseline.jpg
+Status: FAIL
+Image 1(sha256): fdc6040e7265eb3c0242ec5bab058626c62c80a24a0f30081a09018da2651b9c
+Image 2(sha256): 4e13d33916d200e8e67c51c5cd7022b2f9a60086a6c74dadf283289dbd2af8bd
+
+Comparing output_cpu/remove100seams_by_row_baseline.jpg & output_gpu_v1/remove100seams_by_row_baseline.jpg
+Status: FAIL
+Image 1(sha256): a7ab29e6846e90040bf7c20f719d0b3ea83cdd15d3960b691d72ae77d6eb02ae
+Image 2(sha256): 8a83773454efb5a589e88b6bfdc11e39d70c982bc33d9ed0d64a5ef607ce082e
+
+Comparing output_cpu/remove50seams_by_row_baseline.jpg & output_gpu_v1/remove50seams_by_row_baseline.jpg
+Status: FAIL
+Image 1(sha256): 4b26f6b9f88e744d049f989fe2d9d00d07d6a54e3f7ee87d37722350310e2317
+Image 2(sha256): ab915317147f05a97d58724cf1c67ea1bc5997e00d86ea0594519d465a1bb47f
+
+Comparing output_cpu/insert500seams_by_row_baseline.jpg & output_gpu_v1/insert500seams_by_row_baseline.jpg
+Status: FAIL
+Image 1(sha256): 3b32cfaca8875ddf23ec5b40c5d7958acd52165d3ee657a916f7769dcd5e3c56
+Image 2(sha256): 025a2913b3e932d1011eccf453d78f32a117df9da7c2fbe091440af71b263078
+
+Comparing output_cpu/insert200seams_by_row_baseline.jpg & output_gpu_v1/insert200seams_by_row_baseline.jpg
+Status: FAIL
+Image 1(sha256): ce3b5800f32da757e9333ff959c9e1a158d4c6592a2cf6ae3b6fb5d2c66a81e6
+Image 2(sha256): 7af9f6ac8c3d3963f98fecff8b604c886e03e0dde32a688f41272dd1667bec9d
+
+Comparing output_cpu/remove200seams_by_row_baseline.jpg & output_gpu_v1/remove200seams_by_row_baseline.jpg
+Status: FAIL
+Image 1(sha256): 13a37fc754974b59233d97a95ca8f5b8405ca26d29ab110c448a52e900c1c69b
+Image 2(sha256): b3bbe11831615ca1d3f9f8cf67c7a3909f202aaa41049b686ef801ab6cbe4777
+
+Comparing output_cpu/remove100seams_by_column_baseline.jpg & output_gpu_v1/remove100seams_by_column_baseline.jpg
+Status: FAIL
+Image 1(sha256): 1dcb1c2a49396f1c42bd7d6c88a8698ddb75da285c06dc4c5f356a8bc8b7e474
+Image 2(sha256): d3f1fcc41ea0d3f4606cfadb91c889740fbe2c7816d68f39927c3fad33e07934
+
+Comparing output_cpu/insert100seams_by_column_baseline.jpg & output_gpu_v1/insert100seams_by_column_baseline.jpg
+Status: FAIL
+Image 1(sha256): 0d1665c8ecea183f798f2cac6e6daedaebbebea1ff987b13b5c6d373755a0d0a
+Image 2(sha256): 126201871703b294f751eb01de1e0b6dbbd294146169b87bf3a21af9f140617f
+
+Comparing output_cpu/insert100seams_by_row_baseline.jpg & output_gpu_v1/insert100seams_by_row_baseline.jpg
+Status: FAIL
+Image 1(sha256): 703897155cc7e6b5a94c0a56cd9d5790f7d40e73b49c8e841c11912d30665fd9
+Image 2(sha256): 850415ceadd15ce70e31343769a933e2ee1a787d8baa4b3111ac1ee82ca68ede
+
+Comparing output_cpu/insert50seams_by_column_baseline.jpg & output_gpu_v1/insert50seams_by_column_baseline.jpg
+Status: FAIL
+Image 1(sha256): e7e925be9dfd01a0906dd288fd118afe5732d4356e4478a3d0833e1abe9441d7
+Image 2(sha256): f8769ff012d23ca73fe560161870bcc3e787e4720c2251d308771982a7c6c6d1
+
+Comparing output_cpu/insert500seams_by_column_baseline.jpg & output_gpu_v1/insert500seams_by_column_baseline.jpg
+Status: FAIL
+Image 1(sha256): 4ee30af04e613aca9ff6154ef3a6ab389beee5157ebee8a0833271859b68e2f5
+Image 2(sha256): 5a81eb8d77e9a30a0e09c7aecb7b6faa866f51496d445d5cfad8877ad300988d
+
+Comparing output_cpu/remove200seams_by_column_baseline.jpg & output_gpu_v1/remove200seams_by_column_baseline.jpg
+Status: FAIL
+Image 1(sha256): cf338b381fc9cdbd9e91852d23e4467d537fb51095afac4bb8645a4b81f8545b
+Image 2(sha256): 24d3baa50816e28ea9d24efd675f5975002633354480e6d53272ca4831c310bc
+
+Comparing output_cpu/remove500seams_by_column_baseline.jpg & output_gpu_v1/remove500seams_by_column_baseline.jpg
+Status: FAIL
+Image 1(sha256): 7fd790b7bfe7e5849befd8f52dc84a4de2d7ef9de0a90c1be01bbf69e7e6dcea
+Image 2(sha256): bbac29274e9f4fc070b5d8bdea58f55bd52884aee3d670877695be6208437172
+
+Comparing output_cpu/insert200seams_by_column_baseline.jpg & output_gpu_v1/insert200seams_by_column_baseline.jpg
+Status: FAIL
+Image 1(sha256): eb1476fa05c7eb367cf4c12405ad6c45a9e76a3f8f9c8fa517d66bb4c762478e
+Image 2(sha256): 22a896ba11eb9fa25eead06ac7220dc21da83d67c885b9f78f8f298bd389122c
+
+Comparing output_cpu/remove50seams_by_column_baseline.jpg & output_gpu_v1/remove50seams_by_column_baseline.jpg
+Status: FAIL
+Image 1(sha256): 6b325a02436ccf3f90281b9725b9b1d2725c1f7a9cda9b057d02f04923a92cdb
+Image 2(sha256): 0f769828d65377a17537c795075eb1b1af4af6df8d2d5b5179cddb113e589d9f
+
+
+Total PASS: 0
+
+Total FAIL: 16

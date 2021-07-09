@@ -4,6 +4,7 @@ from numba import jit, njit, cuda, float64, int16
 import math
 import time
 import argparse
+import os
 
 # ignore numba warning
 from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning, NumbaWarning
@@ -13,9 +14,10 @@ warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
 warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 warnings.simplefilter('ignore', category=NumbaWarning)
 
-BLOCK_SIZE = 32
-SMEM_MIN_COST_SHAPE = BLOCK_SIZE+2
-BLOCK_SIZE_ENERGY=32
+BLOCK_SIZE_2D = int(os.environ.get('BLOCK_SIZE_2D', 32))
+BLOCK_SIZE_1D = int(os.environ.get('BLOCK_SIZE_1D', 32))
+SMEM_MIN_COST_SHAPE = BLOCK_SIZE_1D + 2
+BLOCK_SIZE_ENERGY=BLOCK_SIZE_1D
 
 MAX_WIDTH = 2400
 
@@ -148,18 +150,18 @@ def get_minimum_cost_table_kernel_v1(energy, backtrack, w, r):
 
         if tx == 0:
             s_energy[0] = energy[r-1, left]
-        if tx == BLOCK_SIZE - 1:
-            s_energy[BLOCK_SIZE + 1] = energy[r-1, right]
+        if tx == BLOCK_SIZE_1D - 1:
+            s_energy[BLOCK_SIZE_1D + 1] = energy[r-1, right]
         s_energy[tx+1] = energy[r-1, c]
         cuda.syncthreads()
         
-        minimum = s_energy[left - BLOCK_SIZE*bx + 1]
+        minimum = s_energy[left - BLOCK_SIZE_1D*bx + 1]
         backtrack_col = left
-        if s_energy[c-BLOCK_SIZE*bx +1] < minimum:
-            minimum = s_energy[c-BLOCK_SIZE*bx +1]
+        if s_energy[c-BLOCK_SIZE_1D*bx +1] < minimum:
+            minimum = s_energy[c-BLOCK_SIZE_1D*bx +1]
             backtrack_col = c
-        if s_energy[right-BLOCK_SIZE*bx+1] < minimum:
-            minimum = s_energy[right-BLOCK_SIZE*bx+1]
+        if s_energy[right-BLOCK_SIZE_1D*bx+1] < minimum:
+            minimum = s_energy[right-BLOCK_SIZE_1D*bx+1]
             backtrack_col = right
 
         energy[r, c] += minimum
@@ -217,7 +219,7 @@ def remove_seams_parallel(img, num_remove, checksum=False):
 
     for _ in range(num_remove):
         height, width = img.shape[:2]
-        block_size = BLOCK_SIZE, BLOCK_SIZE
+        block_size = BLOCK_SIZE_2D, BLOCK_SIZE_2D
         grid_size = (math.ceil(height / block_size[0]),
                     math.ceil(width / block_size[1]))
 
@@ -249,7 +251,7 @@ def remove_seams_parallel(img, num_remove, checksum=False):
         ### get minimum cost table kernel
         d_backtrack = cuda.device_array((height, width), dtype=np.uint16)
 
-        block_size_min_cost = BLOCK_SIZE
+        block_size_min_cost = BLOCK_SIZE_1D
         grid_size_min_cost = math.ceil(width / block_size_min_cost)
         for r in range(1, height):
             get_minimum_cost_table_kernel_v1[grid_size_min_cost, block_size_min_cost](
@@ -306,7 +308,7 @@ def insert_seams_parallel(img, num_insert, checksum=False):
 
     for _ in range(num_insert):
         height, width = temp_img.shape[:2]
-        block_size = BLOCK_SIZE, BLOCK_SIZE
+        block_size = BLOCK_SIZE_2D, BLOCK_SIZE_2D
         grid_size = (math.ceil(height / block_size[0]),
                     math.ceil(width / block_size[1]))
 
@@ -336,7 +338,7 @@ def insert_seams_parallel(img, num_insert, checksum=False):
         # get minimum cost table kernel
         d_backtrack = cuda.device_array((height, width), dtype=np.uint16)
 
-        block_size_min_cost = BLOCK_SIZE
+        block_size_min_cost = BLOCK_SIZE_1D
         grid_size_min_cost = math.ceil(width / block_size_min_cost)
 
         for r in range(1, height):
@@ -365,7 +367,7 @@ def insert_seams_parallel(img, num_insert, checksum=False):
         height, width = img.shape[:2]
         seam_idxs = seams_record.pop()
 
-        block_size = BLOCK_SIZE, BLOCK_SIZE
+        block_size = BLOCK_SIZE_2D, BLOCK_SIZE_2D
         grid_size = (math.ceil(height / block_size[0]),
                     math.ceil(width / block_size[1]))
 
@@ -441,3 +443,16 @@ if __name__ == '__main__':
     cv2.imwrite(OUT_IMG, output)
     print("Output image shape: " + str(output.shape))
     print(f"Total time: {time.perf_counter() - start:.3f} seconds")
+
+
+    # report purpose: write to file, uncomment to run
+    import sys
+    f = open("output_carving_gpu_v1.txt", "a") # need to clear file before run
+    f.write(" ".join(sys.argv[:]) + '\n')
+    f.write("SEAM CARVING GPU - OPTIMIZE 1" + '\n')
+    f.write('BLOCK_SIZE_1D: {0}'.format(BLOCK_SIZE_1D) + '\n')
+    f.write('BLOCK_SIZE_2D: {0}'.format(BLOCK_SIZE_2D) + '\n')
+    f.write("Input image shape: " + str(img.shape)  + '\n')
+    f.write("Output image shape: " + str(output.shape)  + '\n')
+    f.write(f"Total time: {time.perf_counter() - start:.3f} seconds"  + '\n\n')
+    f.close()
