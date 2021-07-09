@@ -1,0 +1,40 @@
+# How to Run
+## Phiên bản tuần tự
+### Tham số dòng lệnh:
+- seam_carving_cpu.py [-dx <seam_dx>] [-dy <seam_dy>] [-in <image_in>] [-out <image_out>] [-test_time]
+- Với:
+  + dx: số pixels cần thay đổi theo chiều ngang của ảnh
+  + dy: số pixels cần thay đổi theo chiều dọc của ảnh
+  + image_in: ảnh gốc được đưa vào
+  + image_out: ảnh sau khi sử dụng seam carving (path pattern cpu: output_cpu, gpu: output_gpu)
+  + test_time: tham số để in ra thời gian của các hàm thành phần, mặc định không truyền là False
+
+# Phiên bản song song hóa
+### Tham số dòng lệnh:
+- seam_carving_gpu.py [-dx <seam_dx>] [-dy <seam_dy>] [-in <image_in>] [-out <image_out>]
+- Với:
+  + dx: số pixels cần thay đổi theo chiều ngang của ảnh
+  + dy: số pixels cần thay đổi theo chiều dọc của ảnh
+  + image_in: ảnh gốc được đưa vào
+  + image_out: ảnh sau khi sử dụng seam carving (path pattern cpu: output_cpu, gpu: output_gpu)
+  + checksum: sử dụng kết quả grayscale host thay vì parallel để không bị sai số trong quá trình tính toán số thực dẫn đến output khác nhau giữa gpu và cpu
+
+ # Phiên bản tối ưu 1
+### Tham số dòng lệnh:
+- seam_carving_gpu_v1.py [-dx <seam_dx>] [-dy <seam_dy>] [-in <image_in>] [-out <image_out>]
+- Với:
+  + dx: số pixels cần thay đổi theo chiều ngang của ảnh
+  + dy: số pixels cần thay đổi theo chiều dọc của ảnh
+  + image_in: ảnh gốc được đưa vào
+  + image_out: ảnh sau khi sử dụng seam carving (path pattern cpu: output_cpu, gpu: output_gpu)
+  + checksum: sử dụng kết quả grayscale host thay vì parallel để không bị sai số trong quá trình tính toán số thực dẫn đến output khác nhau giữa gpu và cpu
+
+
+ # Phiên bản tối ưu 2
+- Sử dụng package os của python để thay đổi biến môi trường
+```
+import os
+os.environ['BLOCK_SIZE_1D'] = '64'
+os.environ['BLOCK_SIZE_2D'] = '32'
+```
+- Tương tự như Phiên bản tối ưu 1
