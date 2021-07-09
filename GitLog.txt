@@ -1,0 +1,144 @@
+* 5f272d0, LTHieu, 7 minutes ago, add HowToRun.txt
+* 6441dc9, tuhp-tech, 25 minutes ago, remove unuse images and update kernal running test
+* a7e6b76, tuhp-tech, 32 minutes ago, update .gitignore to remove some images
+* 06f64eb, tuhp-tech, 49 minutes ago, running gpu v1 optimize and ru running testing
+*   113d860, tuhp-tech, 77 minutes ago, Merge branch 'master' of github.com:tuancamtbtx/gpu-python
+|\  
+| * 8d20f56, LTHieu, 2 hours ago, add gpu v1
+* | c671024, tuhp-tech, 77 minutes ago, write to file result total time
+|/  
+* 4d7a25d, tuhp-tech, 13 hours ago, add environment variables for block size
+* a670fd1, tuhp-tech, 2 days ago, run more input pictures
+* 2867c2b, tuhp-tech, 2 days ago, update test_hash_image.py and run for all images
+* 4a28a61, tuhp-tech, 2 days ago, update insert seams
+* 3660442, tuhp-tech, 2 days ago, update remove seam
+* b7e9fb8, LTHieu, 2 days ago, update gpu to test insert checksum
+* 06ad4ca, LTHieu, 2 days ago, add measure time for insert seams
+* 196db22, LTHieu, 2 days ago, add measure time for cpu
+* cbc761f, tuhp-tech, 3 days ago, update project structure
+* d98295d, tuan.nguyen15, 3 days ago, [add] seam gpu
+* 85bdd0d, tuhp-tech, 7 days ago, update README.md
+* 046ca99, LTHieu, 3 weeks ago, update for weakly report
+* e8db6cd, tuancamtbtx, 3 weeks ago, [update] for weekly report
+* 7f91d54, tuancamtbtx, 3 weeks ago, update forward energy
+* 3c61ebd, tuancamtbtx, 3 weeks ago, refactor
+* f6c605f, TuanCam, 3 weeks ago, Update README.md
+* 59e878d, TuanCam, 3 weeks ago, Update README.md
+* e468d79, Hieu Le Thanh, 4 weeks ago, Update README.md
+*   59f5355, Hieu Le Thanh, 4 weeks ago, Merge pull request #17 from tuancamtbtx/tuhp/cuda/rbg-to-gray
+|\  
+| * 1acb256, tuhp-tech, 5 weeks ago, temporary commit
+|/  
+* 452887f, tuan.nguyen15, 5 weeks ago, [update] git ignore
+* 06d00d6, tuan.nguyen15, 5 weeks ago, [update] new struct project
+*   a803ae7, TuanCam, 5 weeks ago, Merge pull request #15 from tuancamtbtx/develop
+|\  
+| *   ae8edf5, tuan.nguyen15, 5 weeks ago, [add] gpu feed forward
+| |\  
+| |/  
+|/|   
+* | b545314, LTHieu, 5 weeks ago, update repo for report weekly
+* | 1759308, LTHieu, 5 weeks ago, update repo for report weekly
+* |   2c9e6c2, LTHieu, 6 weeks ago, Merge branch 'master' of https://github.com/tuancamtbtx/gpu-python
+|\ \  
+| * | 5f75e69, Hieu Le Thanh, 6 weeks ago, update README.md
+* | | 32d3a8f, LTHieu, 6 weeks ago, update README.md
+* | | 4720b53, LTHieu, 6 weeks ago, update README.md
+|/ /  
+* | f4cf68f, LTHieu, 7 weeks ago, update notebook
+* | 564737c, LTHieu, 7 weeks ago, update notebook
+* |   5307612, LTHieu, 7 weeks ago, Merge branch 'master' of https://github.com/tuancamtbtx/gpu-python
+|\ \  
+| * | 1007aaa, Hieu Le Thanh, 7 weeks ago, Update README.md
+| * | a4d77e1, Hieu Le Thanh, 7 weeks ago, Update README.md
+* | | cd21be7, LTHieu, 7 weeks ago, update repo for weakly representation
+|/ /  
+* |   cb5e2dd, LTHieu, 7 weeks ago, full cpu implement
+|\ \  
+| * | 74f2b88, tuhp-tech, 9 weeks ago, fix conflict and adding forward energy
+| * | cb7de62, tuhp-tech, 9 weeks ago, fix conflict
+| * |   124e2a1, TuanCam, 9 weeks ago, Merge pull request #7 from tuancamtbtx/develop
+| |\ \  
+| * \ \   3e47fb7, TuanCam, 9 weeks ago, Merge pull request #6 from tuancamtbtx/develop
+| |\ \ \  
+* | \ \ \   9427596, LTHieu, 7 weeks ago, Merge branch 'cpu_dev' Full CPU implementation
+|\ \ \ \ \  
+| * \ \ \ \   0686eef, Hieu Le Thanh, 7 weeks ago, Merge pull request #12 from tuancamtbtx/cpu_LTHieu
+| |\ \ \ \ \  
+| | * | | | | 5ed2627, LTHieu, 7 weeks ago, full cpu implement
+| | * | | | | cccf743, LTHieu, 7 weeks ago, fix insert seams
+| | * | | | | b3cfb9e, LTHieu, 7 weeks ago, add forward energy function
+| | * | | | | 9b54e79, LTHieu, 7 weeks ago, fix insert seams cause black image and update test file
+| | * | | | | 61b09d0, LTHieu, 7 weeks ago, update README.md
+| | | | | | * 6dc22cf, tuan.nguyen15, 5 weeks ago, [add] feed forward
+| | | | | | * 02e55af, tuan.nguyen15, 7 weeks ago, [update] cmt
+| | | | | | * 159a933, tuan.nguyen15, 7 weeks ago, add flow
+| | | | | |/  
+| | | | | * 9881021, tuan.nguyen15, 9 weeks ago, [add] code version tu.v2
+| | | | |/| 
+| | | | | * 9858890, tuhp-tech, 10 weeks ago, fix warning from using numba
+| | | | * |   bd334fa, tuan.nguyen15, 9 weeks ago, [update] energy func
+| | | | |\ \  
+| | | | | * | 5fc0413, LTHieu, 9 weeks ago, update assignment works for members
+| | | |_|/ /  
+| | |/| | |   
+| | * | | | eff05bb, LTHieu, 3 months ago, update repo for presentation
+| | * | | | a2f2ef9, LTHieu, 3 months ago, update baseline for cpu
+| | | | * | ec7a747, tuan.nguyen15, 9 weeks ago, [update] readme
+| | | | * |   e73e931, tuan.nguyen15, 3 months ago, fix conflict and add new report and cal energy
+| | | | |\ \  
+| | |_|_|/ /  
+| |/| | | |   
+| * | | | | 8244ead, TuanCam, 3 months ago, Merge pull request #3 from tuancamtbtx/cpu_LTHieu
+| |\| | | | 
+| | * | | | 5a8cb3c, LTHieu, 3 months ago, fix get_minimum_seam function
+| | * | | | b095ca7, LTHieu, 3 months ago, add remove seams fuction
+| | * | | | 9ef13af, LTHieu, 3 months ago, update rgb2gray function for using @njit
+| | * | | | d5969e9, LTHieu, 3 months ago, update README.md
+| * | | | | 098bb30, TuanCam, 3 months ago, Merge pull request #1 from tuancamtbtx/cpu_LTHieu
+| |\| | | | 
+| | * | | | 20caa6c, LTHieu, 3 months ago, add calc energy function
+| |/ / / /  
+| | | * | 11784bc, tuan.nguyen15, 3 months ago, add git ignore
+| | | * | 602c0c5, tuan.nguyen15, 3 months ago, add notebook cal energy new
+| | | * | 97b58e0, tuan.nguyen15, 3 months ago, test numba
+| | |/ /  
+| | * / 2df2b5f, TuanCam, 3 months ago, Merge pull request #2 from tuancamtbtx/cpu_dev_tuhp
+| |/| | 
+| | |/  
+| | * 1d08167, tuhp-tech, 3 months ago, removal done
+| | * 825cfd6, tuhp-tech, 3 months ago, update requirements.txt
+| | * f8048e6, tuhp-tech, 3 months ago, adding first pictures input
+| | * 544dcab, tuhp-tech, 3 months ago, main start actions base on command line
+| | * b4b63ca, tuhp-tech, 3 months ago, seam insertion implementation
+| | * 86427d2, tuhp-tech, 3 months ago, add seam
+| | * 8e5f05f, tuhp-tech, 3 months ago, add seam removal
+| | * d861679, tuhp-tech, 3 months ago, carve image
+| | * 64d094b, tuhp-tech, 3 months ago, get minimum seam base on energy map
+| | * 11e7d2b, tuhp-tech, 3 months ago, calculate energy map
+| | * b6a974a, tuhp-tech, 3 months ago, visuallize image functions
+| | *   7c69755, tuhp-tech, 3 months ago, get skeleton from master
+| | |\  
+| | |/  
+| |/|   
+| * | 36e47b6, tuhp-tech, 3 months ago, skeleton
+|/ /  
+* |   5f8bfc6, tuhp-tech, 3 months ago, Merge branch 'master' of https://github.com/tuancamtbtx/gpu-python
+|\ \  
+* | | 9444fdb, tuhp-tech, 3 months ago, Init commit
+| | * 19f1d0e, tuhp-tech, 3 months ago, temporary commit
+| |/  
+| * 63c76eb, Tu Phan, 3 months ago, Create README.md
+| * 292a8a4, Tu Phan, 3 months ago, Update README.md
+| * 6420163, Tu Phan, 3 months ago, Update README.md
+| * 52ff5f6, Tu Phan, 3 months ago, Update README.md
+| * ff275b9, Tu Phan, 3 months ago, Update README.md
+| * 157cf46, Tu Phan, 3 months ago, Update README.md
+| * fb3f2c7, Tu Phan, 3 months ago, Update README.md
+| * 48dadd5, Tu Phan, 3 months ago, Update README.md
+| * b0d0793, Tu Phan, 3 months ago, Update README.md
+|/  
+* 87e4949, LTHieu, 3 months ago, update LTHieu info
+* a82cc82, tuan.nguyen15, 3 months ago, [update] info mem
+* 9adc4bf, tuan.nguyen15, 3 months ago, [add] gitignore
+* 2140112, tuan.nguyen15, 3 months ago, [add] - readme
