@@ -4,7 +4,7 @@ Reference: https://www.verywellmind.com/an-overview-of-enochlophobia-4782189
 python seam_carving_gpu.py -in "images/crowded.jpg" -out "ext_output_gpu/crowded_insert20seams_by_row_baseline.jpg" -dx 0 -dy 20 -checksum
 python seam_carving_gpu.py -in "images/crowded.jpg" -out "ext_output_gpu/crowded_insert50seams_by_row_baseline.jpg" -dx 0 -dy 50 -checksum
 python seam_carving_gpu.py -in "images/crowded.jpg" -out "ext_output_gpu/crowded_insert100seams_by_row_baseline.jpg" -dx 0 -dy 100 -checksum
-python seam_carving_gpu.py -in "images/crowded.jpg" -out "ext_output_gpu/crowded_insert200seams_by_row_baseline.jpg" -dx 0 -dy 200 -checksu
+python seam_carving_gpu.py -in "images/crowded.jpg" -out "ext_output_gpu/crowded_insert200seams_by_row_baseline.jpg" -dx 0 -dy 200 -checksum
 python seam_carving_gpu.py -in "images/crowded.jpg" -out "ext_output_gpu/crowded_insert200seams_by_row_and_column_baseline.jpg" -dx 200 -dy 200 -checksum
 
 ## CPU
@@ -59,7 +59,7 @@ Reference: https://www.verywellmind.com/an-overview-of-enochlophobia-4782189
 python seam_carving_gpu.py -in "images/rain_origin.png" -out "ext_output_gpu/rain_origin_insert20seams_by_row_baseline.png" -dx 0 -dy 20 -checksum
 python seam_carving_gpu.py -in "images/rain_origin.png" -out "ext_output_gpu/rain_origin_insert50seams_by_row_baseline.png" -dx 0 -dy 50 -checksum
 python seam_carving_gpu.py -in "images/rain_origin.png" -out "ext_output_gpu/rain_origin_insert100seams_by_row_baseline.png" -dx 0 -dy 100 -checksum
-python seam_carving_gpu.py -in "images/rain_origin.png" -out "ext_output_gpu/rain_origin_insert200seams_by_row_baseline.png" -dx 0 -dy 200 -checksu
+python seam_carving_gpu.py -in "images/rain_origin.png" -out "ext_output_gpu/rain_origin_insert200seams_by_row_baseline.png" -dx 0 -dy 200 -checksum
 python seam_carving_gpu.py -in "images/rain_origin.png" -out "ext_output_gpu/rain_origin_insert200seams_by_row_and_column_baseline.png" -dx 200 -dy 200 -checksum
 
 ## CPU
