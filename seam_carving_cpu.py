@@ -353,7 +353,7 @@ def seam_carving(img, dx, dy, test_time):
 
 if __name__ == '__main__':
     arg_parse = argparse.ArgumentParser()
-
+    
     arg_parse.add_argument(
         "-dy", help="Number of vertical seams to add/subtract", type=int, default=0)
     arg_parse.add_argument(
@@ -382,3 +382,13 @@ if __name__ == '__main__':
     cv2.imwrite(OUT_IMG, output)
     print("Output image shape: " + str(output.shape))
     print(f"Total time: {time.perf_counter() - start:.3f} seconds")
+
+    # report purpose: write to file, uncomment to run
+    import sys
+    f = open("output_carving_cpu.txt", "a") # need to clear file before run
+    f.write(" ".join(sys.argv[:]) + '\n')
+    f.write("SEAM CARVING CPU" + '\n')
+    f.write("Input image shape: " + str(img.shape)  + '\n')
+    f.write("Output image shape: " + str(output.shape)  + '\n')
+    f.write(f"Total time: {time.perf_counter() - start:.3f} seconds"  + '\n\n')
+    f.close()

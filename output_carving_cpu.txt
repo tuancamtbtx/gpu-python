@@ -1,0 +1,96 @@
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/insert50seams_by_row_baseline.jpg -dx 0 -dy 50
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (1018, 1428, 3)
+Total time: 17.821 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/insert100seams_by_row_baseline.jpg -dx 0 -dy 100
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (1068, 1428, 3)
+Total time: 35.273 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/insert200seams_by_row_baseline.jpg -dx 0 -dy 200
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (1168, 1428, 3)
+Total time: 70.088 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/insert500seams_by_row_baseline.jpg -dx 0 -dy 500
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (1468, 1428, 3)
+Total time: 159.554 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/insert50seams_by_column_baseline.jpg -dx 50 -dy 0
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (968, 1478, 3)
+Total time: 21.511 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/insert100seams_by_column_baseline.jpg -dx 100 -dy 0
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (968, 1528, 3)
+Total time: 41.922 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/insert200seams_by_column_baseline.jpg -dx 200 -dy 0
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (968, 1628, 3)
+Total time: 81.385 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/insert500seams_by_column_baseline.jpg -dx 500 -dy 0
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (968, 1928, 3)
+Total time: 183.982 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/remove50seams_by_row_baseline.jpg -dx 0 -dy -50
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (918, 1428, 3)
+Total time: 20.159 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/remove100seams_by_row_baseline.jpg -dx 0 -dy -100
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (868, 1428, 3)
+Total time: 39.961 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/remove200seams_by_row_baseline.jpg -dx 0 -dy -200
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (768, 1428, 3)
+Total time: 70.112 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/remove500seams_by_row_baseline.jpg -dx 0 -dy -500
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (468, 1428, 3)
+Total time: 144.841 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/remove50seams_by_column_baseline.jpg -dx -50 -dy 0
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (968, 1378, 3)
+Total time: 21.004 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/remove100seams_by_column_baseline.jpg -dx -100 -dy 0
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (968, 1328, 3)
+Total time: 37.814 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/remove200seams_by_column_baseline.jpg -dx -200 -dy 0
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (968, 1228, 3)
+Total time: 74.832 seconds
+
+seam_carving_cpu.py -in images/input.jpg -out output_cpu/remove500seams_by_column_baseline.jpg -dx -500 -dy 0
+SEAM CARVING CPU
+Input image shape: (968, 1428, 3)
+Output image shape: (968, 928, 3)
+Total time: 158.793 seconds
+

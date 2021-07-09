@@ -84,8 +84,30 @@
   + mode: cpu hoặc gpu
   + dx: số pixels cần thay đổi theo chiều ngang của ảnh
   + dy: số pixels cần thay đổi theo chiều dọc của ảnh
-  + image_in: ảnh gốc được đưa vào
-  + image_out: ảnh sau khi sử dụng seam carving (path pattern cpu: output_cpu, gpu: output_gpu)
+  + in: ảnh gốc được đưa vào
+  + out: ảnh sau khi sử dụng seam carving (path pattern cpu: output_cpu, gpu: output_gpu)
+
+- seam_carving_cpu.py [-dx <seam_dx>] [-dy <seam_dy>] [-in <image_in>] [-out <image_out>] -test_time
+- Với:
+  + mode: cpu hoặc gpu
+  + dx: số pixels cần thay đổi theo chiều ngang của ảnh
+  + dy: số pixels cần thay đổi theo chiều dọc của ảnh
+  + in: ảnh gốc được đưa vào
+  + out: ảnh sau khi sử dụng seam carving (path pattern cpu: output_cpu, gpu: output_gpu)
+  + test_time: in ra thời gian chạy của từng hàm trong pipeline
+
+- Điều chỉnh BLOCK_SIZE trong gpu
+  + export BLOCK_SIZE_1D=32
+  + export BLOCK_SIZE_2D=32
+- seam_carving_gpu.py [-dx <seam_dx>] [-dy <seam_dy>] [-in <image_in>] [-out <image_out>] -check_sum
+- Với:
+  + mode: cpu hoặc gpu
+  + dx: số pixels cần thay đổi theo chiều ngang của ảnh
+  + dy: số pixels cần thay đổi theo chiều dọc của ảnh
+  + in: ảnh gốc được đưa vào
+  + out: ảnh sau khi sử dụng seam carving (path pattern cpu: output_cpu, gpu: output_gpu)
+  + check_sum: sử dụng grayscale của cpu (tránh sai số)
+
 
 ## Tham khảo
 - https://github.com/kalpeshdusane/Seam-Carving-B.E.-Project

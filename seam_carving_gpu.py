@@ -368,3 +368,16 @@ if __name__ == '__main__':
     # print(hash(str(output)))
     # print(hash(str(output2)))
     # print(np.mean(np.abs(output - output2)))
+
+
+    # report purpose: write to file, uncomment to run
+    import sys
+    f = open("output_carving_gpu.txt", "a") # need to clear file before run
+    f.write(" ".join(sys.argv[:]) + '\n')
+    f.write("SEAM CARVING GPU - BASELINE" + '\n')
+    f.write('BLOCK_SIZE_1D: {0}'.format(BLOCK_SIZE_1D) + '\n')
+    f.write('BLOCK_SIZE_2D: {0}'.format(BLOCK_SIZE_2D) + '\n')
+    f.write("Input image shape: " + str(img.shape)  + '\n')
+    f.write("Output image shape: " + str(output.shape)  + '\n')
+    f.write(f"Total time: {time.perf_counter() - start:.3f} seconds"  + '\n\n')
+    f.close()
